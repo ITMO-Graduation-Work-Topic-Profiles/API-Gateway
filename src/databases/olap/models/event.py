@@ -1,12 +1,15 @@
-from clickhouse_sqlalchemy import engines, types
-from sqlalchemy import Column
+import uuid
+from datetime import datetime
 
-from .base import Base
+from clickhouse_sqlalchemy import engines, types
+from sqlalchemy import orm
+
+from .base import BaseModel
 
 __all__ = ["EventModel"]
 
 
-class EventModel(Base):
+class EventModel(BaseModel):
     __tablename__ = "events"
     __table_args__ = (
         engines.MergeTree(
@@ -14,10 +17,10 @@ class EventModel(Base):
         ),
     )
 
-    event_id = Column(types.UUID, primary_key=True)
-    timestamp = Column(types.DateTime, nullable=False)
-    user_id = Column(types.String, nullable=False)
-    topics = Column(
+    event_id: orm.Mapped[uuid.UUID] = orm.mapped_column(types.UUID, primary_key=True)
+    timestamp: orm.Mapped[datetime] = orm.mapped_column(types.DateTime, nullable=False)
+    user_id: orm.Mapped[str] = orm.mapped_column(types.String, nullable=False)
+    topics: orm.Mapped[list[tuple[str, float]]] = orm.mapped_column(
         types.Nested(
             [
                 ("name", types.String),
@@ -25,7 +28,7 @@ class EventModel(Base):
             ]
         )
     )
-    entities = Column(
+    entities: orm.Mapped[list[tuple[str, float]]] = orm.mapped_column(
         types.Nested(
             [
                 ("name", types.String),
@@ -33,7 +36,7 @@ class EventModel(Base):
             ]
         )
     )
-    sentiment = Column(
+    sentiment: orm.Mapped[tuple[float, float, float]] = orm.mapped_column(
         types.Tuple(
             [
                 ("positive", types.Float32),

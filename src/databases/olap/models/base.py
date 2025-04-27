@@ -1,7 +1,9 @@
-from clickhouse_sqlalchemy import get_declarative_base
-from sqlalchemy import MetaData
+from sqlalchemy import MetaData, orm
 
-__all__ = ["Base"]
+__all__ = ["BaseModel"]
 
 metadata = MetaData()
-Base = get_declarative_base(metadata=metadata)
+
+
+class BaseModel(orm.DeclarativeBase):
+    metadata = metadata
