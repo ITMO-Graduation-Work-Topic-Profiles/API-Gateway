@@ -37,6 +37,11 @@ class MongoSchema(BaseModel):
     database: str
 
 
+class ClickHouseSchema(BaseModel):
+    connection: URLSchema
+    database: str
+
+
 class Settings(BaseSettings):
-    debug: bool
     mongo: MongoSchema
+    clickhouse: ClickHouseSchema
