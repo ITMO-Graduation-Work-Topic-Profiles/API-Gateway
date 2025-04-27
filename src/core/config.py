@@ -5,6 +5,7 @@ from pydantic_settings import BaseSettings
 
 __all__ = ["Settings"]
 
+
 class URLSchema(BaseModel):
     scheme: str
     host: str
@@ -31,10 +32,10 @@ class URLSchema(BaseModel):
         return str(self._url)
 
 
-
 class MongoSchema(BaseModel):
     connection: URLSchema
     database: str
+
 
 class Settings(BaseSettings):
     debug: bool
