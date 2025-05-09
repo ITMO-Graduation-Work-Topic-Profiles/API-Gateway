@@ -13,72 +13,96 @@ def build_get_users_pipeline(
     entities: list[str] | None = None,
     sentiment: str | None = None,
 ) -> list[dict[str, tp.Any]]:
-    match_stage = {"$match": {}}  # type: ignore[var-annotated]
-    if topics:
-        match_stage["$match"]["topics"] = {"$in": topics}
-    if entities:
-        match_stage["$match"]["entities"] = {"$in": entities}
-    if sentiment:
-        match_stage["$match"][f"sentiment.{sentiment}"] = {"$exists": True}
+    topics = topics or []
+    entities = entities or []
 
-    add_fields_stage = {
-        "$addFields": {
-            "maxTopicWeight": {
-                "$max": {
-                    "$map": {
-                        "input": {
-                            "$filter": {
-                                "input": "$topics",
-                                "as": "t",
-                                "cond": {"$in": ["$$t.name", topics or []]},
-                            }
-                        },
-                        "as": "t",
-                        "in": "$$t.weight",
-                    }
-                }
-            },
-            "maxEntityWeight": {
-                "$max": {
-                    "$map": {
-                        "input": {
-                            "$filter": {
-                                "input": "$entities",
-                                "as": "e",
-                                "cond": {"$in": ["$$e.name", entities or []]},
-                            }
-                        },
-                        "as": "e",
-                        "in": "$$e.weight",
-                    }
-                }
-            },
-            "maxSentimentWeight": (
-                {
-                    "$ifNull": [
-                        f"$sentiment.{sentiment}",
-                        {
-                            "$max": [
-                                "$sentiment.positive",
-                                "$sentiment.neutral",
-                                "$sentiment.negative",
-                            ]
-                        },
-                    ]
-                }
-            ),
+    pipeline: list[dict[str, tp.Any]] = []
+
+    pipeline.append(
+        {
+            "$lookup": {
+                "from": "topic_profiles",
+                "localField": "user_id",
+                "foreignField": "user_id",
+                "as": "topic_profile",
+            }
         }
-    }
+    )
 
-    sort_stage = {
-        "$sort": {"maxTopicWeight": -1, "maxEntityWeight": -1, "maxSentimentWeight": -1}
-    }
+    pipeline.append({"$unwind": "$topic_profile"})
 
-    pipeline = [
-        match_stage,
-        add_fields_stage,
-        sort_stage,
-    ]
+    match_filter: dict[str, tp.Any] = {}
+    if topics:
+        match_filter["topic_profile.topics.name"] = {"$in": topics}
+    if entities:
+        match_filter["topic_profile.entities.name"] = {"$in": entities}
+    if sentiment:
+        match_filter[f"topic_profile.sentiment.{sentiment}"] = {"$exists": True}
+
+    if match_filter:
+        pipeline.append(
+            {
+                "$match": match_filter,
+            }
+        )
+
+    pipeline.append(
+        {
+            "$addFields": {
+                "maxTopicWeight": {
+                    "$max": {
+                        "$map": {
+                            "input": {
+                                "$filter": {
+                                    "input": "$topic_profile.topics",
+                                    "as": "t",
+                                    "cond": {"$in": ["$$t.name", topics]},
+                                }
+                            },
+                            "as": "t",
+                            "in": "$$t.weight",
+                        }
+                    }
+                },
+                "maxEntityWeight": {
+                    "$max": {
+                        "$map": {
+                            "input": {
+                                "$filter": {
+                                    "input": "$topic_profile.entities",
+                                    "as": "e",
+                                    "cond": {"$in": ["$$e.name", entities]},
+                                }
+                            },
+                            "as": "e",
+                            "in": "$$e.weight",
+                        }
+                    }
+                },
+                "sentimentScore": (
+                    sentiment
+                    and f"$topic_profile.sentiment.{sentiment}"
+                    or {
+                        "$max": [
+                            "$topic_profile.sentiment.positive",
+                            "$topic_profile.sentiment.neutral",
+                            "$topic_profile.sentiment.negative",
+                        ]
+                    }
+                ),
+            }
+        }
+    )
+
+    pipeline.append(
+        {
+            "$sort": {
+                "maxTopicWeight": -1,
+                "maxEntityWeight": -1,
+                "sentimentScore": -1,
+            },
+        }
+    )
 
     return pipeline
 
