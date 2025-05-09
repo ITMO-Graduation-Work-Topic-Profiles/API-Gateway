@@ -1,13 +1,13 @@
 from pydantic import BaseModel
 
 from src.api.schemas.entity import EntitySchema
+from src.api.schemas.keyword import KeywordSchema
 from src.api.schemas.sentiment import SentimentSchema
-from src.api.schemas.topic import TopicSchema
 
 __all__ = ["TopicProfileSchema"]
 
 
 class TopicProfileSchema(BaseModel):
-    topics: list[TopicSchema]
+    keywords: list[KeywordSchema]
     entities: list[EntitySchema]
     sentiment: SentimentSchema

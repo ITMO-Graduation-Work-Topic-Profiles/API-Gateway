@@ -21,7 +21,7 @@ router = APIRouter(
 async def get_users_endpoint(
     request: Request,
     params: tp.Annotated[Params, Depends()],
-    topics: tp.Annotated[list[str] | None, Query()] = None,
+    keywords: tp.Annotated[list[str] | None, Query()] = None,
     entities: tp.Annotated[list[str] | None, Query()] = None,
     sentiment: tp.Annotated[SentimentEnum | None, Query()] = None,
 ) -> tp.Any:
@@ -29,7 +29,7 @@ async def get_users_endpoint(
         request.app.state.mongo_database,
         params,
         transformer=convert_to_user_get_dto_transformer,
-        topics=topics,
+        keywords=keywords,
         entities=entities,
         sentiment=sentiment.value if sentiment else None,
     )

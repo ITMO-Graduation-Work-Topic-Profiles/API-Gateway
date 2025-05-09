@@ -9,11 +9,11 @@ __all__ = ["get_users_repository"]
 
 
 def build_get_users_pipeline(
-    topics: list[str] | None = None,
+    keywords: list[str] | None = None,
     entities: list[str] | None = None,
     sentiment: str | None = None,
 ) -> list[dict[str, tp.Any]]:
-    topics = topics or []
+    keywords = keywords or []
     entities = entities or []
 
     pipeline: list[dict[str, tp.Any]] = []
@@ -32,8 +32,8 @@ def build_get_users_pipeline(
     pipeline.append({"$unwind": "$topic_profile"})
 
     match_filter: dict[str, tp.Any] = {}
-    if topics:
-        match_filter["topic_profile.topics.name"] = {"$in": topics}
+    if keywords:
+        match_filter["topic_profile.keywords.name"] = {"$in": keywords}
     if entities:
         match_filter["topic_profile.entities.name"] = {"$in": entities}
     if sentiment:
@@ -54,9 +54,9 @@ def build_get_users_pipeline(
                         "$map": {
                             "input": {
                                 "$filter": {
-                                    "input": "$topic_profile.topics",
+                                    "input": "$topic_profile.keywords",
                                     "as": "t",
-                                    "cond": {"$in": ["$$t.name", topics]},
+                                    "cond": {"$in": ["$$t.name", keywords]},
                                 }
                             },
                             "as": "t",

@@ -1,8 +1,8 @@
 from pydantic import BaseModel
 
-__all__ = ["TopicSchema"]
+__all__ = ["KeywordSchema"]
 
 
-class TopicSchema(BaseModel):
+class KeywordSchema(BaseModel):
     name: str
     weight: float
