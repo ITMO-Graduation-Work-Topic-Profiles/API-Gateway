@@ -1,7 +1,7 @@
-from .entity import EntityTopicEventSchema, EntityTopicProfileSchema
-from .keyword import KeywordTopicEventSchema, KeywordTopicProfileSchema
-from .sentiment import SentimentTopicEventSchema, SentimentTopicProfileSchema
-from .topic_profile import TopicProfileSchema
+from .entities import EntityTopicEventSchema, EntityTopicProfileSchema
+from .keywords import KeywordTopicEventSchema, KeywordTopicProfileSchema
+from .sentiments import SentimentTopicEventSchema, SentimentTopicProfileSchema
+from .topic_profiles import TopicProfileSchema
 
 __all__ = [
     "EntityTopicProfileSchema",

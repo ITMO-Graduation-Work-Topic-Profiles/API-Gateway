@@ -2,9 +2,9 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from src.schemas.entity import EntityTopicProfileSchema
-from src.schemas.keyword import KeywordTopicProfileSchema
-from src.schemas.sentiment import SentimentTopicProfileSchema
+from src.schemas.entities import EntityTopicProfileSchema
+from src.schemas.keywords import KeywordTopicProfileSchema
+from src.schemas.sentiments import SentimentTopicProfileSchema
 from src.utils.dates import utcnow
 
 __all__ = ["TopicProfileSchema"]
