@@ -12,7 +12,7 @@ from src.schemas import (
     KeywordTopicProfileSchema,
     SentimentTopicEventSchema,
     SentimentTopicProfileSchema,
-    TopicProfileSchema,
+    TopicAttributesSchema,
 )
 from src.utils.topic_profiles import (
     build_key_from_item_fields,
@@ -23,7 +23,7 @@ from src.utils.topic_profiles import (
     merge_sentiment,
     merge_sentiment_schemas,
     merge_weighted_item_lists,
-    update_topic_profile_schema_based_on_topic_event_schema,
+    update_topic_attributes_schema_based_on_topic_event_schema,
 )
 
 
@@ -797,7 +797,7 @@ class TestUpdateTopicProfileSchemaBasedOnTopicEventSchema:
     ) -> None:
         mock_utcnow.return_value = mock_time
 
-        existing_topic_profile = TopicProfileSchema(
+        existing_topic_profile = TopicAttributesSchema(
             keywords=[
                 KeywordTopicProfileSchema(
                     name="keyword1",
@@ -858,12 +858,12 @@ class TestUpdateTopicProfileSchemaBasedOnTopicEventSchema:
         )
 
         # Call the function
-        result = update_topic_profile_schema_based_on_topic_event_schema(
+        result = update_topic_attributes_schema_based_on_topic_event_schema(
             existing_topic_profile, incoming_topic_event
         )
 
         # Verify the result
-        assert isinstance(result, TopicProfileSchema)
+        assert isinstance(result, TopicAttributesSchema)
         assert result.updated_at == mock_time
 
         # Verify keywords
@@ -915,7 +915,7 @@ class TestUpdateTopicProfileSchemaBasedOnTopicEventSchema:
         mock_utcnow.return_value = mock_time
 
         # Create empty existing topic profile
-        existing_topic_profile = TopicProfileSchema()
+        existing_topic_profile = TopicAttributesSchema()
 
         # Create incoming topic event
         incoming_topic_event = TopicEventBrokerDTO(
@@ -937,12 +937,12 @@ class TestUpdateTopicProfileSchemaBasedOnTopicEventSchema:
         )
 
         # Call the function
-        result = update_topic_profile_schema_based_on_topic_event_schema(
+        result = update_topic_attributes_schema_based_on_topic_event_schema(
             existing_topic_profile, incoming_topic_event
         )
 
         # Verify the result
-        assert isinstance(result, TopicProfileSchema)
+        assert isinstance(result, TopicAttributesSchema)
         assert result.updated_at == mock_time
 
         # Verify keywords

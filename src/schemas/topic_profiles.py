@@ -7,10 +7,10 @@ from src.schemas.keywords import KeywordTopicProfileSchema
 from src.schemas.sentiments import SentimentTopicProfileSchema
 from src.utils.dates import utcnow
 
-__all__ = ["TopicProfileSchema"]
+__all__ = ["TopicAttributesSchema"]
 
 
-class TopicProfileSchema(BaseModel):
+class TopicAttributesSchema(BaseModel):
     keywords: list[KeywordTopicProfileSchema] = Field(default_factory=list)
     entities: list[EntityTopicProfileSchema] = Field(default_factory=list)
     sentiments: list[SentimentTopicProfileSchema] = Field(default_factory=list)

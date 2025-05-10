@@ -1,12 +1,12 @@
 from .entities import EntityTopicEventSchema, EntityTopicProfileSchema
 from .keywords import KeywordTopicEventSchema, KeywordTopicProfileSchema
 from .sentiments import SentimentTopicEventSchema, SentimentTopicProfileSchema
-from .topic_profiles import TopicProfileSchema
+from .topic_profiles import TopicAttributesSchema
 
 __all__ = [
     "EntityTopicProfileSchema",
     "SentimentTopicProfileSchema",
-    "TopicProfileSchema",
+    "TopicAttributesSchema",
     "KeywordTopicProfileSchema",
     "EntityTopicEventSchema",
     "SentimentTopicEventSchema",

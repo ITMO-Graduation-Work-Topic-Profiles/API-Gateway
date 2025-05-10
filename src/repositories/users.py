@@ -35,16 +35,23 @@ def build_get_users_with_topic_profiles_pipeline(
     )
 
     pipeline.append(
-        {"$unwind": "$topic_profile"},
+        {
+            "$unwind": {
+                "path": "$topic_profile",
+                "preserveNullAndEmptyArrays": True,
+            },
+        },
     )
 
     match_stage: dict[str, tp.Any] = {}
     if keywords:
-        match_stage["topic_profile.keywords.name"] = {"$in": keywords}
+        match_stage["topic_profile.topic_attributes.keywords.name"] = {"$in": keywords}
     if entities:
-        match_stage["topic_profile.entities.name"] = {"$in": entities}
+        match_stage["topic_profile.topic_attributes.entities.name"] = {"$in": entities}
     if sentiments:
-        match_stage["topic_profile.sentiments.name"] = {"$in": sentiments}
+        match_stage["topic_profile.topic_attributes.sentiments.name"] = {
+            "$in": sentiments
+        }
 
     if match_stage:
         pipeline.append(
@@ -61,7 +68,7 @@ def build_get_users_with_topic_profiles_pipeline(
                         "$map": {
                             "input": {
                                 "$filter": {
-                                    "input": "$topic_profile.keywords",
+                                    "input": "$topic_profile.topic_attributes.keywords",
                                     "as": "t",
                                     "cond": {"$in": ["$$t.name", keywords]},
                                 }
@@ -76,7 +83,7 @@ def build_get_users_with_topic_profiles_pipeline(
                         "$map": {
                             "input": {
                                 "$filter": {
-                                    "input": "$topic_profile.entities",
+                                    "input": "$topic_profile.topic_attributes.entities",
                                     "as": "e",
                                     "cond": {"$in": ["$$e.name", entities]},
                                 }
@@ -91,7 +98,7 @@ def build_get_users_with_topic_profiles_pipeline(
                         "$map": {
                             "input": {
                                 "$filter": {
-                                    "input": "$topic_profile.sentiments",
+                                    "input": "$topic_profile.topic_attributes.sentiments",
                                     "as": "s",
                                     "cond": {"$in": ["$$s.name", sentiments]},
                                 }
@@ -152,7 +159,12 @@ def build_get_user_with_topic_profile_pipeline(
         },
     )
     pipeline.append(
-        {"$unwind": "$topic_profile"},
+        {
+            "$unwind": {
+                "path": "$topic_profile",
+                "preserveNullAndEmptyArrays": True,
+            },
+        },
     )
 
     return pipeline

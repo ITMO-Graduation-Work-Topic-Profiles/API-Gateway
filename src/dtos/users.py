@@ -1,25 +1,19 @@
 from pydantic import BaseModel
 
-from src.schemas import TopicProfileSchema
+from src.schemas import TopicAttributesSchema
 
 __all__ = [
     "UserGetDTO",
     "UserCreateDTO",
-    "UserOLTPInsertDTO",
 ]
 
 
 class UserGetDTO(BaseModel):
     user_id: str
     username: str
-    topic_profile: TopicProfileSchema
+    topic_attributes: TopicAttributesSchema | None = None
 
 
 class UserCreateDTO(BaseModel):
     user_id: str
     username: str
-
-
-class UserOLTPInsertDTO(BaseModel):
-    user_id: str
-    topic_profile: TopicProfileSchema

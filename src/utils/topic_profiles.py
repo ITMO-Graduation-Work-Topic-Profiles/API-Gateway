@@ -9,13 +9,13 @@ from src.schemas import (
     KeywordTopicProfileSchema,
     SentimentTopicEventSchema,
     SentimentTopicProfileSchema,
-    TopicProfileSchema,
+    TopicAttributesSchema,
 )
 from src.utils.dates import utcnow
 from src.utils.weights import recalculate_weight
 
 __all__ = [
-    "update_topic_profile_schema_based_on_topic_event_schema",
+    "update_topic_attributes_schema_based_on_topic_event_schema",
 ]
 
 
@@ -169,12 +169,12 @@ def merge_sentiment_schemas(
     )
 
 
-def update_topic_profile_schema_based_on_topic_event_schema(
-    existing_topic_profile: TopicProfileSchema,
+def update_topic_attributes_schema_based_on_topic_event_schema(
+    existing_topic_profile: TopicAttributesSchema,
     incoming_topic_event: TopicEventBrokerDTO,
-) -> TopicProfileSchema:
+) -> TopicAttributesSchema:
     new_timestamp_value = utcnow()
-    new_topic_profile_schema = TopicProfileSchema.model_validate(
+    new_topic_profile_schema = TopicAttributesSchema.model_validate(
         existing_topic_profile.model_dump()
     )
 
