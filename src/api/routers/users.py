@@ -1,6 +1,15 @@
 import typing as tp
 
-from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request, status
+from fastapi import (
+    APIRouter,
+    Body,
+    Depends,
+    HTTPException,
+    Path,
+    Query,
+    Request,
+    status,
+)
 from fastapi_pagination import Page, Params
 
 from src.api.transformers import (
@@ -72,5 +81,28 @@ async def create_user_endpoint(
         user_id=body.user_id,
         database=request.app.state.mongo_database,
     )
+
+    return get_user_with_topic_profile_repository_to_user_get_dto_transformer(user)
+
+
+@router.get(
+    "/{user_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=UserGetDTO,
+)
+async def get_user_by_id_endpoint(
+    request: Request,
+    user_id: tp.Annotated[str, Path()],
+) -> tp.Any:
+    user = await get_user_with_topic_profile_repository(
+        user_id=user_id,
+        database=request.app.state.mongo_database,
+    )
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with user_id {user_id} not found",
+        )
 
     return get_user_with_topic_profile_repository_to_user_get_dto_transformer(user)
