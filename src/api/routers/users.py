@@ -1,13 +1,18 @@
 import typing as tp
 
-from fastapi import APIRouter, Depends, Query, Request, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request, status
 from fastapi_pagination import Page, Params
 
 from src.api.transformers import (
+    get_user_with_topic_profile_repository_to_user_get_dto_transformer,
     get_users_with_topic_profiles_paginated_repository_to_user_get_dto_transformer,
 )
-from src.dtos import UserGetDTO
-from src.repositories import get_users_with_topic_profiles_paginated_repository
+from src.dtos import UserCreateDTO, UserGetDTO
+from src.repositories import (
+    get_user_with_topic_profile_repository,
+    get_users_with_topic_profiles_paginated_repository,
+    insert_user_repository,
+)
 
 __all__ = ["router"]
 
@@ -22,7 +27,7 @@ router = APIRouter(
     status_code=status.HTTP_200_OK,
     response_model=Page[UserGetDTO],
 )
-async def get_users_endpoint(
+async def get_users_with_topic_profiles_endpoint(
     request: Request,
     params: tp.Annotated[Params, Depends()],
     keywords: tp.Annotated[tp.Sequence[str] | None, Query()] = None,
@@ -37,3 +42,35 @@ async def get_users_endpoint(
         transformer=get_users_with_topic_profiles_paginated_repository_to_user_get_dto_transformer,
         database=request.app.state.mongo_database,
     )
+
+
+@router.post(
+    "",
+    status_code=status.HTTP_201_CREATED,
+    response_model=UserGetDTO,
+)
+async def create_user_endpoint(
+    request: Request,
+    body: tp.Annotated[UserCreateDTO, Body()],
+) -> tp.Any:
+    existing_user = await get_user_with_topic_profile_repository(
+        user_id=body.user_id,
+        database=request.app.state.mongo_database,
+    )
+
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"User with user_id {body.user_id} already exists",
+        )
+
+    await insert_user_repository(
+        data=body.model_dump(),
+        database=request.app.state.mongo_database,
+    )
+    user = await get_user_with_topic_profile_repository(
+        user_id=body.user_id,
+        database=request.app.state.mongo_database,
+    )
+
+    return get_user_with_topic_profile_repository_to_user_get_dto_transformer(user)
