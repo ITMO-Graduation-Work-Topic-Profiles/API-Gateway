@@ -13,6 +13,7 @@ dependencies = [
     "fastapi-pagination>=0.13.1",
     "motor>=3.7.0",
     "faststream[kafka]>=0.5.40",
+    "asynch>=0.3.0",
 ]
 
 [dependency-groups]

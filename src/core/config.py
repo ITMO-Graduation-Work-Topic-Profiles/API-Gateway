@@ -41,6 +41,10 @@ class ClickHouseSchema(BaseModel):
     connection: URLSchema
     database: str
 
+    @property
+    def dsn(self) -> str:
+        return f"{self.connection.url}/{self.database}"
+
 
 class KafkaSchema(BaseModel):
     connection: URLSchema
