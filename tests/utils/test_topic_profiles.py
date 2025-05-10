@@ -853,7 +853,7 @@ class TestUpdateTopicProfileSchemaBasedOnTopicEventSchema:
                     category="organization", name="entity3", weight=0.7
                 ),
             ],
-            sentiment=SentimentTopicEventSchema(name="positive", weight=0.9),
+            sentiments=[SentimentTopicEventSchema(name="positive", weight=0.9)],
             timestamp=datetime(2023, 1, 1, tzinfo=timezone.utc),
         )
 
@@ -897,7 +897,7 @@ class TestUpdateTopicProfileSchemaBasedOnTopicEventSchema:
             2022, 1, 1, tzinfo=timezone.utc
         )
 
-        # Verify sentiment
+        # Verify sentiments
         assert len(result.sentiments) == 2
         assert result.sentiments[0].name == "positive"
         assert result.sentiments[0].weight == 0.82
@@ -932,7 +932,7 @@ class TestUpdateTopicProfileSchemaBasedOnTopicEventSchema:
                     category="organization", name="entity2", weight=0.7
                 ),
             ],
-            sentiment=SentimentTopicEventSchema(name="positive", weight=0.9),
+            sentiments=[SentimentTopicEventSchema(name="positive", weight=0.9)],
             timestamp=datetime(2023, 1, 1, tzinfo=timezone.utc),
         )
 
@@ -965,7 +965,7 @@ class TestUpdateTopicProfileSchemaBasedOnTopicEventSchema:
         assert result.entities[1].weight == 0.7
         assert result.entities[1].updated_at == mock_time
 
-        # Verify sentiment
+        # Verify sentiments
         assert len(result.sentiments) == 1
         assert result.sentiments[0].name == "positive"
         assert result.sentiments[0].weight == 0.9

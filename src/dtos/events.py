@@ -35,5 +35,5 @@ class TopicEventBrokerDTO(BaseModel):
     user_id: str
     keywords: list[KeywordTopicEventSchema]
     entities: list[EntityTopicEventSchema]
-    sentiment: SentimentTopicEventSchema
+    sentiments: list[SentimentTopicEventSchema]
     timestamp: datetime
