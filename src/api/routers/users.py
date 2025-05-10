@@ -17,7 +17,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=Page[UserGetDTO])
+@router.get("", response_model=Page[UserGetDTO])
 async def get_users_endpoint(
     request: Request,
     params: tp.Annotated[Params, Depends()],
