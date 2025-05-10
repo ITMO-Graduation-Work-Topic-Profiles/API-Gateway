@@ -3,7 +3,7 @@ from faststream.kafka.fastapi import Context
 from starlette.datastructures import State
 
 from src.api.dtos import ContentEventBrokerDTO
-from src.repositories import insert_content_event
+from src.repositories import insert_content_event_repository
 
 __all__ = ["router"]
 
@@ -16,7 +16,7 @@ async def transmit_content_event_to_oltp_handler(
     dto: ContentEventBrokerDTO,
     state: State = Context("state"),
 ) -> None:
-    await insert_content_event(
+    await insert_content_event_repository(
         dto.content_event_uuid,
         dto.user_id,
         dto.content,

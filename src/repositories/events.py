@@ -3,10 +3,10 @@ from datetime import datetime
 
 from src.utils.clickhouse import GetClickhouseConnection
 
-__all__ = ["insert_content_event"]
+__all__ = ["insert_content_event_repository"]
 
 
-async def insert_content_event(
+async def insert_content_event_repository(
     content_event_uuid: uuid.UUID,
     user_id: str,
     content: str,
