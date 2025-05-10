@@ -2,10 +2,10 @@ import typing as tp
 
 from fastapi import APIRouter, Body, Request, status
 
-from src.api.dtos import ContentEventCreateDTO, MessageResponseDTO
 from src.api.transformers import (
     content_event_create_dto_to_content_event_broker_publish_dto_transformer,
 )
+from src.dtos import ContentEventCreateDTO, MessageResponseDTO
 
 __all__ = ["router"]
 

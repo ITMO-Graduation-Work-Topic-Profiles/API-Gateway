@@ -1,6 +1,6 @@
 import typing as tp
 
-from src.api.dtos import UserGetDTO
+from src.dtos import UserGetDTO
 
 __all__ = ["get_users_repository_to_user_get_dto_transformer"]
 

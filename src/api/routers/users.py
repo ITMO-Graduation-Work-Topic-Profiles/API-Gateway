@@ -3,9 +3,9 @@ import typing as tp
 from fastapi import APIRouter, Depends, Query, Request, status
 from fastapi_pagination import Page, Params
 
-from src.api.dtos import UserGetDTO
-from src.api.enums import SentimentEnum
 from src.api.transformers import get_users_repository_to_user_get_dto_transformer
+from src.dtos import UserGetDTO
+from src.enums import SentimentEnum
 from src.repositories import get_users_repository
 
 __all__ = ["router"]

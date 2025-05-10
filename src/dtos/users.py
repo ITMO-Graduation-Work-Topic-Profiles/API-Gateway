@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from src.api.schemas import TopicProfileSchema
+from src.schemas import TopicProfileSchema
 
 __all__ = ["UserGetDTO"]
 

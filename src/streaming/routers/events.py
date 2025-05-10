@@ -2,7 +2,7 @@ from faststream.kafka import KafkaRouter
 from faststream.kafka.fastapi import Context
 from starlette.datastructures import State
 
-from src.api.dtos import ContentEventBrokerDTO
+from src.dtos import ContentEventBrokerDTO
 from src.repositories import insert_content_event_repository
 
 __all__ = ["router"]
@@ -12,7 +12,7 @@ router = KafkaRouter(prefix="events-")
 
 
 @router.subscriber("content")
-async def transmit_content_event_to_oltp_handler(
+async def transmit_content_event_to_olap_handler(
     dto: ContentEventBrokerDTO,
     state: State = Context("state"),
 ) -> None:
@@ -23,3 +23,11 @@ async def transmit_content_event_to_oltp_handler(
         dto.timestamp,
         get_connection=state.get_clickhouse_connection,
     )
+
+
+@router.subscriber("topic")
+async def transmit_topic_event_to_oltp_handler(
+    dto: ContentEventBrokerDTO,
+    state: State = Context("state"),
+) -> None:
+    pass
