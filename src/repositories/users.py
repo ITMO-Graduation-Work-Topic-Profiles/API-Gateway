@@ -120,7 +120,7 @@ async def get_users_with_topic_profiles_paginated_repository(
     **pipeline_kwargs: tp.Any,
 ) -> tp.Any:
     return await apaginate_aggregate(
-        database["topic_profiles"],
+        database["users"],
         build_get_users_with_topic_profiles_pipeline(**pipeline_kwargs),
         params,
         transformer=transformer,
