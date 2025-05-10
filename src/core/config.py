@@ -42,9 +42,18 @@ class ClickHouseSchema(BaseModel):
     database: str
 
 
+class KafkaSchema(BaseModel):
+    connection: URLSchema
+
+    @property
+    def bootstrap_servers(self) -> str:
+        return f"{self.connection.host}:{self.connection.port}"
+
+
 class Settings(BaseSettings):
     mongo: MongoSchema
     clickhouse: ClickHouseSchema
+    kafka: KafkaSchema
 
     model_config = SettingsConfigDict(
         env_file=".env",

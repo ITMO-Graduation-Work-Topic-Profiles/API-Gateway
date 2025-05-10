@@ -12,6 +12,7 @@ dependencies = [
     "uvicorn>=0.34.2",
     "fastapi-pagination>=0.13.1",
     "motor>=3.7.0",
+    "faststream[kafka]>=0.5.40",
 ]
 
 [dependency-groups]

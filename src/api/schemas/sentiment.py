@@ -4,6 +4,6 @@ __all__ = ["SentimentSchema"]
 
 
 class SentimentSchema(BaseModel):
-    positive: float
-    neutral: float
-    negative: float
+    positive: float | None = None
+    neutral: float | None = None
+    negative: float | None = None
