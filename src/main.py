@@ -7,7 +7,6 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 from src.api.routers import api_router
 from src.core.config import Settings
-from src.streaming.routers import streaming_outer
 
 settings = Settings()
 
@@ -24,8 +23,6 @@ async def lifespan(app: FastAPI) -> tp.AsyncGenerator[None, None]:
 
 
 faststream_router = KafkaRouter()
-
-faststream_router.include_router(streaming_outer)
 
 
 app = FastAPI(lifespan=lifespan)

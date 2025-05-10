@@ -5,7 +5,7 @@ from fastapi_pagination import Page, Params
 
 from src.api.dtos import UserGetDTO
 from src.api.enums import SentimentEnum
-from src.api.transformers import convert_to_user_get_dto_transformer
+from src.api.transformers import get_users_repository_to_user_get_dto_transformer
 from src.repositories import get_users_repository
 
 __all__ = ["router"]
@@ -28,7 +28,7 @@ async def get_users_endpoint(
     return await get_users_repository(
         request.app.state.mongo_database,
         params,
-        transformer=convert_to_user_get_dto_transformer,
+        transformer=get_users_repository_to_user_get_dto_transformer,
         keywords=keywords,
         entities=entities,
         sentiment=sentiment.value if sentiment else None,
