@@ -1,4 +1,8 @@
-from pydantic import BaseModel
+from datetime import datetime
+
+from pydantic import BaseModel, Field
+
+from src.utils.dates import utcnow
 
 __all__ = [
     "KeywordTopicProfileSchema",
@@ -9,6 +13,7 @@ __all__ = [
 class KeywordTopicProfileSchema(BaseModel):
     name: str
     weight: float
+    updated_at: datetime = Field(default_factory=utcnow)
 
 
 class KeywordTopicEventSchema(BaseModel):
