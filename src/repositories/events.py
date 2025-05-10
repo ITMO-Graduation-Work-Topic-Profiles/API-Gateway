@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from src.utils.clickhouse import GetClickhouseConnection
+from src.utils.olap import GetClickhouseConnection
 
 __all__ = ["insert_content_event_repository"]
 

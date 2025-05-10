@@ -10,7 +10,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from src.api.routers import api_router
 from src.core.config import Settings
 from src.streaming.routers import streaming_router
-from src.utils.clickhouse import build_get_clickhouse_connection
+from src.utils.olap import build_get_clickhouse_connection
 
 settings = Settings()
 

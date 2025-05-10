@@ -5,10 +5,10 @@ from fastapi_pagination.ext.motor import apaginate_aggregate
 from fastapi_pagination.types import AsyncItemsTransformer
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-__all__ = ["get_users_repository"]
+__all__ = ["get_users_with_topic_profiles_paginated_repository"]
 
 
-def build_get_users_pipeline(
+def build_get_users_with_topic_profiles_pipeline(
     keywords: list[str] | None = None,
     entities: list[str] | None = None,
     sentiment: str | None = None,
@@ -107,15 +107,16 @@ def build_get_users_pipeline(
     return pipeline
 
 
-async def get_users_repository(
-    mongo_database: AsyncIOMotorDatabase[tp.Any],
+async def get_users_with_topic_profiles_paginated_repository(
+    *,
+    database: AsyncIOMotorDatabase[tp.Any],
     params: Params,
     transformer: AsyncItemsTransformer | None = None,
-    **kwargs: tp.Any,
+    **pipeline_kwargs: tp.Any,
 ) -> tp.Any:
     return await apaginate_aggregate(
-        mongo_database["topic_profiles"],
-        build_get_users_pipeline(**kwargs),
+        database["topic_profiles"],
+        build_get_users_with_topic_profiles_pipeline(**pipeline_kwargs),
         params,
         transformer=transformer,
     )

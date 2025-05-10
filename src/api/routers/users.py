@@ -3,10 +3,12 @@ import typing as tp
 from fastapi import APIRouter, Depends, Query, Request, status
 from fastapi_pagination import Page, Params
 
-from src.api.transformers import get_users_repository_to_user_get_dto_transformer
+from src.api.transformers import (
+    get_users_with_topic_profiles_paginated_repository_to_user_get_dto_transformer,
+)
 from src.dtos import UserGetDTO
 from src.enums import SentimentEnum
-from src.repositories import get_users_repository
+from src.repositories import get_users_with_topic_profiles_paginated_repository
 
 __all__ = ["router"]
 
@@ -29,11 +31,11 @@ async def get_users_endpoint(
     entities: tp.Annotated[list[str] | None, Query()] = None,
     sentiment: tp.Annotated[SentimentEnum | None, Query()] = None,
 ) -> tp.Any:
-    return await get_users_repository(
-        request.app.state.mongo_database,
-        params,
-        transformer=get_users_repository_to_user_get_dto_transformer,
+    return await get_users_with_topic_profiles_paginated_repository(
         keywords=keywords,
         entities=entities,
         sentiment=sentiment.value if sentiment else None,
+        params=params,
+        transformer=get_users_with_topic_profiles_paginated_repository_to_user_get_dto_transformer,
+        database=request.app.state.mongo_database,
     )

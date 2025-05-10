@@ -11,9 +11,8 @@ __all__ = [
 
 
 class SentimentTopicProfileSchema(BaseModel):
-    positive: float | None = None
-    neutral: float | None = None
-    negative: float | None = None
+    name: str
+    weight: float
     updated_at: datetime = Field(default_factory=utcnow)
 
 
