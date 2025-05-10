@@ -186,8 +186,8 @@ def update_topic_profile_schema_based_on_topic_event_schema(
         existing_topic_profile.entities,
         incoming_topic_event.entities,
     )
-    new_topic_profile_schema.sentiment = merge_sentiment_schemas(
-        existing_topic_profile.sentiment,
+    new_topic_profile_schema.sentiments = merge_sentiment_schemas(
+        existing_topic_profile.sentiments,
         [incoming_topic_event.sentiment],
     )
     new_topic_profile_schema.updated_at = new_timestamp_value

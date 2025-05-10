@@ -9,12 +9,13 @@ __all__ = ["get_users_with_topic_profiles_paginated_repository"]
 
 
 def build_get_users_with_topic_profiles_pipeline(
-    keywords: list[str] | None = None,
-    entities: list[str] | None = None,
-    sentiment: str | None = None,
+    keywords: tp.Sequence[str] = (),
+    entities: tp.Sequence[str] = (),
+    sentiments: tp.Sequence[str] = (),
 ) -> list[dict[str, tp.Any]]:
-    keywords = keywords or []
-    entities = entities or []
+    keywords = list(keywords)
+    entities = list(entities)
+    sentiments = list(sentiments)
 
     pipeline: list[dict[str, tp.Any]] = []
 
@@ -31,25 +32,25 @@ def build_get_users_with_topic_profiles_pipeline(
 
     pipeline.append({"$unwind": "$topic_profile"})
 
-    match_filter: dict[str, tp.Any] = {}
+    match_stage: dict[str, tp.Any] = {}
     if keywords:
-        match_filter["topic_profile.keywords.name"] = {"$in": keywords}
+        match_stage["topic_profile.keywords.name"] = {"$in": keywords}
     if entities:
-        match_filter["topic_profile.entities.name"] = {"$in": entities}
-    if sentiment:
-        match_filter[f"topic_profile.sentiment.{sentiment}"] = {"$exists": True}
+        match_stage["topic_profile.entities.name"] = {"$in": entities}
+    if sentiments:
+        match_stage["topic_profile.sentiments.name"] = {"$in": sentiments}
 
-    if match_filter:
+    if match_stage:
         pipeline.append(
             {
-                "$match": match_filter,
+                "$match": match_stage,
             }
         )
 
     pipeline.append(
         {
             "$addFields": {
-                "maxTopicWeight": {
+                "maxKeywordWeight": {
                     "$max": {
                         "$map": {
                             "input": {
@@ -79,27 +80,31 @@ def build_get_users_with_topic_profiles_pipeline(
                         }
                     }
                 },
-                "sentimentScore": (
-                    sentiment
-                    and f"$topic_profile.sentiment.{sentiment}"
-                    or {
-                        "$max": [
-                            "$topic_profile.sentiment.positive",
-                            "$topic_profile.sentiment.neutral",
-                            "$topic_profile.sentiment.negative",
-                        ]
-                    }
-                ),
-            }
+                "maxSentimentWeight": {
+                    "$max": {
+                        "$map": {
+                            "input": {
+                                "$filter": {
+                                    "input": "$topic_profile.sentiments",
+                                    "as": "s",
+                                    "cond": {"$in": ["$$s.name", sentiments]},
+                                }
+                            },
+                            "as": "s",
+                            "in": "$$s.weight",
+                        }
+                    },
+                },
+            },
         }
     )
 
     pipeline.append(
         {
             "$sort": {
-                "maxTopicWeight": -1,
+                "maxKeywordWeight": -1,
                 "maxEntityWeight": -1,
-                "sentimentScore": -1,
+                "maxSentimentWeight": -1,
             },
         }
     )

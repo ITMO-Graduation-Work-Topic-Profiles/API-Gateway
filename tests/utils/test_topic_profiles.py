@@ -824,7 +824,7 @@ class TestUpdateTopicProfileSchemaBasedOnTopicEventSchema:
                     updated_at=datetime(2022, 1, 1, tzinfo=timezone.utc),
                 ),
             ],
-            sentiment=[
+            sentiments=[
                 SentimentTopicProfileSchema(
                     name="positive",
                     weight=0.8,
@@ -898,13 +898,13 @@ class TestUpdateTopicProfileSchemaBasedOnTopicEventSchema:
         )
 
         # Verify sentiment
-        assert len(result.sentiment) == 2
-        assert result.sentiment[0].name == "positive"
-        assert result.sentiment[0].weight == 0.82
-        assert result.sentiment[0].updated_at == mock_time
-        assert result.sentiment[1].name == "negative"
-        assert result.sentiment[1].weight == 0.5
-        assert result.sentiment[1].updated_at == datetime(
+        assert len(result.sentiments) == 2
+        assert result.sentiments[0].name == "positive"
+        assert result.sentiments[0].weight == 0.82
+        assert result.sentiments[0].updated_at == mock_time
+        assert result.sentiments[1].name == "negative"
+        assert result.sentiments[1].weight == 0.5
+        assert result.sentiments[1].updated_at == datetime(
             2022, 1, 1, tzinfo=timezone.utc
         )
 
@@ -966,7 +966,7 @@ class TestUpdateTopicProfileSchemaBasedOnTopicEventSchema:
         assert result.entities[1].updated_at == mock_time
 
         # Verify sentiment
-        assert len(result.sentiment) == 1
-        assert result.sentiment[0].name == "positive"
-        assert result.sentiment[0].weight == 0.9
-        assert result.sentiment[0].updated_at == mock_time
+        assert len(result.sentiments) == 1
+        assert result.sentiments[0].name == "positive"
+        assert result.sentiments[0].weight == 0.9
+        assert result.sentiments[0].updated_at == mock_time

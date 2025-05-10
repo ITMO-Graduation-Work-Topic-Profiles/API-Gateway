@@ -13,5 +13,5 @@ __all__ = ["TopicProfileSchema"]
 class TopicProfileSchema(BaseModel):
     keywords: list[KeywordTopicProfileSchema] = Field(default_factory=list)
     entities: list[EntityTopicProfileSchema] = Field(default_factory=list)
-    sentiment: list[SentimentTopicProfileSchema] = Field(default_factory=list)
+    sentiments: list[SentimentTopicProfileSchema] = Field(default_factory=list)
     updated_at: datetime = Field(default_factory=utcnow)

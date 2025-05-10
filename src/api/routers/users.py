@@ -7,11 +7,9 @@ from src.api.transformers import (
     get_users_with_topic_profiles_paginated_repository_to_user_get_dto_transformer,
 )
 from src.dtos import UserGetDTO
-from src.enums import SentimentEnum
 from src.repositories import get_users_with_topic_profiles_paginated_repository
 
 __all__ = ["router"]
-
 
 router = APIRouter(
     prefix="/users",
@@ -27,14 +25,14 @@ router = APIRouter(
 async def get_users_endpoint(
     request: Request,
     params: tp.Annotated[Params, Depends()],
-    keywords: tp.Annotated[list[str] | None, Query()] = None,
-    entities: tp.Annotated[list[str] | None, Query()] = None,
-    sentiment: tp.Annotated[SentimentEnum | None, Query()] = None,
+    keywords: tp.Annotated[tp.Sequence[str] | None, Query()] = None,
+    entities: tp.Annotated[tp.Sequence[str] | None, Query()] = None,
+    sentiments: tp.Annotated[tp.Sequence[str] | None, Query()] = None,
 ) -> tp.Any:
     return await get_users_with_topic_profiles_paginated_repository(
-        keywords=keywords,
-        entities=entities,
-        sentiment=sentiment.value if sentiment else None,
+        keywords=keywords or [],
+        entities=entities or [],
+        sentiments=sentiments or [],
         params=params,
         transformer=get_users_with_topic_profiles_paginated_repository_to_user_get_dto_transformer,
         database=request.app.state.mongo_database,
