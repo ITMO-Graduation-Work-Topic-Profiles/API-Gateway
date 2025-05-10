@@ -1,6 +1,6 @@
 import typing as tp
 
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, Query, Request, status
 from fastapi_pagination import Page, Params
 
 from src.api.dtos import UserGetDTO
@@ -17,7 +17,11 @@ router = APIRouter(
 )
 
 
-@router.get("", response_model=Page[UserGetDTO])
+@router.get(
+    "",
+    status_code=status.HTTP_200_OK,
+    response_model=Page[UserGetDTO],
+)
 async def get_users_endpoint(
     request: Request,
     params: tp.Annotated[Params, Depends()],

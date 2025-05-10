@@ -1,6 +1,6 @@
 import typing as tp
 
-from fastapi import APIRouter, Body, Request
+from fastapi import APIRouter, Body, Request, status
 
 from src.api.dtos import ContentEventCreateDTO, MessageResponseDTO
 from src.api.transformers import (
@@ -16,7 +16,11 @@ router = APIRouter(
 )
 
 
-@router.post("/content", response_model=MessageResponseDTO)
+@router.post(
+    "/content",
+    status_code=status.HTTP_202_ACCEPTED,
+    response_model=MessageResponseDTO,
+)
 async def create_content_event_endpoint(
     request: Request,
     body: tp.Annotated[ContentEventCreateDTO, Body()],
@@ -25,4 +29,4 @@ async def create_content_event_endpoint(
         content_event_create_dto_to_content_event_broker_publish_dto_transformer(body),
         "events-content",
     )
-    return MessageResponseDTO(message="Event created successfully")
+    return MessageResponseDTO(message="Content event has been queued for creation")
