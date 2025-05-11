@@ -2,8 +2,7 @@ from faststream.kafka import KafkaRouter
 from faststream.kafka.fastapi import Context
 from starlette.datastructures import State
 
-from src.dtos import ContentEventBrokerDTO, TopicProfileDTO
-from src.dtos.events import TopicEventBrokerDTO
+from src.dtos import ContentEventBrokerDTO, TopicEventBrokerDTO, TopicProfileDTO
 from src.repositories import (
     insert_content_event_repository,
     insert_topic_event_repository,
@@ -30,10 +29,10 @@ async def transmit_content_event_to_olap_handler(
     state: State = Context("state"),
 ) -> None:
     await insert_content_event_repository(
-        incoming_content_event.content_event_uuid,
-        incoming_content_event.user_id,
-        incoming_content_event.content,
-        incoming_content_event.timestamp,
+        content_event_uuid=incoming_content_event.content_event_uuid,
+        user_id=incoming_content_event.user_id,
+        content=incoming_content_event.content,
+        ts=incoming_content_event.timestamp,
         get_connection=state.get_clickhouse_connection,
     )
 
@@ -44,7 +43,7 @@ async def transmit_topic_event_to_oltp_handler(
     state: State = Context("state"),
 ) -> None:
     existing_topic_profile = await get_topic_profile_repository(
-        incoming_topic_event.user_id,
+        user_id=incoming_topic_event.user_id,
         database=state.mongo_database,
     )
 

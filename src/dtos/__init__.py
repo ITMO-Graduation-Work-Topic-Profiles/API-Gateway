@@ -1,4 +1,4 @@
-from .events import ContentEventBrokerDTO, ContentEventCreateDTO
+from .events import ContentEventBrokerDTO, ContentEventCreateDTO, TopicEventBrokerDTO
 from .responses import MessageResponseDTO
 from .topic_profiles import TopicProfileDTO
 from .users import UserCreateDTO, UserGetDTO
@@ -10,4 +10,5 @@ __all__ = [
     "ContentEventCreateDTO",
     "MessageResponseDTO",
     "TopicProfileDTO",
+    "TopicEventBrokerDTO",
 ]

@@ -1,7 +1,7 @@
 import copy
 import typing as tp
 
-from src.dtos.events import TopicEventBrokerDTO
+from src.dtos import TopicEventBrokerDTO
 from src.schemas import (
     EntityTopicEventSchema,
     EntityTopicProfileSchema,

@@ -56,7 +56,7 @@ async def insert_topic_event_repository(
         async with connection.cursor() as cursor:
             await cursor.execute(
                 """
-                INSERT INTO test.topic_events
+                INSERT INTO topic_events
                     (topic_event_uuid, content_event_uuid, user_id,
                      sentiments.name, sentiments.weight,
                      keywords.name,   keywords.weight,

@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.dtos.events import TopicEventBrokerDTO
+from src.dtos import TopicEventBrokerDTO
 from src.schemas import (
     EntityTopicEventSchema,
     EntityTopicProfileSchema,

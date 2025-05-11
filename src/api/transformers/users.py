@@ -16,7 +16,7 @@ def get_user_with_topic_profile_repository_to_user_get_dto_transformer(
         user_id=item["user_id"],
         username=item["username"],
         topic_attributes=item["topic_profile"]["topic_attributes"]
-        if "topic_profile" in item
+        if "topic_profile" in item and item["topic_profile"] is not None
         else None,
     )
 
