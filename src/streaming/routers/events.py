@@ -4,7 +4,10 @@ from starlette.datastructures import State
 
 from src.dtos import ContentEventBrokerDTO, TopicProfileDTO
 from src.dtos.events import TopicEventBrokerDTO
-from src.repositories import insert_content_event_repository
+from src.repositories import (
+    insert_content_event_repository,
+    insert_topic_event_repository,
+)
 
 __all__ = ["router"]
 
@@ -13,6 +16,7 @@ from src.repositories.topic_proflies import (
     upsert_topic_profile_repository,
 )
 from src.schemas import TopicAttributesSchema
+from src.utils.manipulations import split_attributes_from_items
 from src.utils.topic_profiles import (
     update_topic_attributes_schema_based_on_topic_event_schema,
 )
@@ -62,4 +66,41 @@ async def transmit_topic_event_to_oltp_handler(
             topic_attributes=new_topic_attributes,
         ).model_dump(),
         database=state.mongo_database,
+    )
+
+
+@router.subscriber("topic", group_id="A")
+async def transmit_topic_event_to_olap_handler(
+    incoming_topic_event: TopicEventBrokerDTO,
+    state: State = Context("state"),
+) -> None:
+    keywords_names, keywords_weights = split_attributes_from_items(
+        incoming_topic_event.keywords,
+        "name",
+        "weight",
+    )
+    entities_categories, entities_names, entities_weights = split_attributes_from_items(
+        incoming_topic_event.entities,
+        "category",
+        "name",
+        "weight",
+    )
+    sentiments_names, sentiments_weights = split_attributes_from_items(
+        incoming_topic_event.sentiments,
+        "name",
+        "weight",
+    )
+    await insert_topic_event_repository(
+        keywords_names=keywords_names,
+        keywords_weights=keywords_weights,
+        entities_categories=entities_categories,
+        entities_names=entities_names,
+        entities_weights=entities_weights,
+        sentiments_names=sentiments_names,
+        sentiments_weights=sentiments_weights,
+        topic_event_uuid=incoming_topic_event.topic_event_uuid,
+        content_event_uuid=incoming_topic_event.content_event_uuid,
+        user_id=incoming_topic_event.user_id,
+        ts=incoming_topic_event.timestamp,
+        get_connection=state.get_clickhouse_connection,
     )
