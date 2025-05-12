@@ -797,6 +797,7 @@ class TestUpdateAggregatedTopicAttributesDtoBasedOnTopicAttributesEventSchema:
         mock_utcnow.return_value = mock_time
 
         existing_topic_profile = AggregatedTopicAttributesDTO(
+            user_id="user123",
             keywords=[
                 KeywordTopicProfileSchema(
                     name="keyword1",
@@ -914,7 +915,7 @@ class TestUpdateAggregatedTopicAttributesDtoBasedOnTopicAttributesEventSchema:
         mock_utcnow.return_value = mock_time
 
         # Create empty existing topic profile
-        existing_topic_profile = AggregatedTopicAttributesDTO()
+        existing_topic_profile = AggregatedTopicAttributesDTO(user_id="user123")
 
         # Create incoming topic event
         incoming_topic_event = TopicAttributesEventBrokerDTO(

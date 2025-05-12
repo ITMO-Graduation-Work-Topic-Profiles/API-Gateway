@@ -26,14 +26,14 @@ class TestBuildGetUsersWithTopicProfilesPipeline:
         # Verify lookup stage
         lookup_stage = next((stage for stage in pipeline if "$lookup" in stage), None)
         assert lookup_stage is not None
-        assert lookup_stage["$lookup"]["from"] == "topic_profiles"
+        assert lookup_stage["$lookup"]["from"] == "aggregated_topic_attributes"
         assert lookup_stage["$lookup"]["localField"] == "user_id"
         assert lookup_stage["$lookup"]["foreignField"] == "user_id"
 
         # Verify unwind stage
         unwind_stage = next((stage for stage in pipeline if "$unwind" in stage), None)
         assert unwind_stage is not None
-        assert unwind_stage["$unwind"]["path"] == "$topic_profile"
+        assert unwind_stage["$unwind"]["path"] == "$aggregated_topic_attributes"
         assert unwind_stage["$unwind"]["preserveNullAndEmptyArrays"] is True
 
         # Verify sort stage
@@ -64,17 +64,15 @@ class TestBuildGetUsersWithTopicProfilesPipeline:
         match_stage = next((stage for stage in pipeline if "$match" in stage), None)
         assert match_stage is not None
         assert (
-            match_stage["$match"]["topic_profile.topic_attributes.keywords.name"]["$in"]
+            match_stage["$match"]["aggregated_topic_attributes.keywords.name"]["$in"]
             == keywords
         )
         assert (
-            match_stage["$match"]["topic_profile.topic_attributes.entities.name"]["$in"]
+            match_stage["$match"]["aggregated_topic_attributes.entities.name"]["$in"]
             == entities
         )
         assert (
-            match_stage["$match"]["topic_profile.topic_attributes.sentiments.name"][
-                "$in"
-            ]
+            match_stage["$match"]["aggregated_topic_attributes.sentiments.name"]["$in"]
             == sentiments
         )
 
@@ -145,14 +143,14 @@ class TestBuildGetUserWithTopicProfilePipeline:
         # Verify lookup stage
         lookup_stage = pipeline[1]
         assert "$lookup" in lookup_stage
-        assert lookup_stage["$lookup"]["from"] == "topic_profiles"
+        assert lookup_stage["$lookup"]["from"] == "aggregated_topic_attributes"
         assert lookup_stage["$lookup"]["localField"] == "user_id"
         assert lookup_stage["$lookup"]["foreignField"] == "user_id"
 
         # Verify unwind stage
         unwind_stage = pipeline[2]
         assert "$unwind" in unwind_stage
-        assert unwind_stage["$unwind"]["path"] == "$topic_profile"
+        assert unwind_stage["$unwind"]["path"] == "$aggregated_topic_attributes"
         assert unwind_stage["$unwind"]["preserveNullAndEmptyArrays"] is True
 
 
@@ -164,12 +162,11 @@ class TestGetUserWithTopicProfileRepository:
         expected_user = {
             "user_id": user_id,
             "username": "Test User",
-            "topic_profile": {
-                "topic_attributes": {
-                    "keywords": [],
-                    "entities": [],
-                    "sentiments": [],
-                }
+            "aggregated_topic_attributes": {
+                "user_id": user_id,
+                "keywords": [],
+                "entities": [],
+                "sentiments": [],
             },
         }
 

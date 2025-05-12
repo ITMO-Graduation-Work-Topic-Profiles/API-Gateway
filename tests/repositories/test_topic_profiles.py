@@ -57,7 +57,7 @@ class TestGetTopicProfileRepository:
 
         # Assert
         assert result == expected_profile
-        mock_database.__getitem__.assert_called_once_with("topic_profiles")
+        mock_database.__getitem__.assert_called_once_with("aggregated_topic_attributes")
         mock_collection.find_one.assert_called_once_with({"user_id": user_id})
 
     @pytest.mark.asyncio
@@ -79,7 +79,7 @@ class TestGetTopicProfileRepository:
 
         # Assert
         assert result is None
-        mock_database.__getitem__.assert_called_once_with("topic_profiles")
+        mock_database.__getitem__.assert_called_once_with("aggregated_topic_attributes")
         mock_collection.find_one.assert_called_once_with({"user_id": user_id})
 
     @pytest.mark.asyncio
@@ -100,7 +100,7 @@ class TestGetTopicProfileRepository:
                 database=mock_database,
             )
 
-        mock_database.__getitem__.assert_called_once_with("topic_profiles")
+        mock_database.__getitem__.assert_called_once_with("aggregated_topic_attributes")
         mock_collection.find_one.assert_called_once_with({"user_id": user_id})
 
 
@@ -150,7 +150,7 @@ class TestUpsertTopicProfileRepository:
         )
 
         # Assert
-        mock_database.__getitem__.assert_called_once_with("topic_profiles")
+        mock_database.__getitem__.assert_called_once_with("aggregated_topic_attributes")
         mock_collection.update_one.assert_called_once_with(
             {"user_id": profile_data["user_id"]},
             {"$set": profile_data},
@@ -208,7 +208,7 @@ class TestUpsertTopicProfileRepository:
                 database=mock_database,
             )
 
-        mock_database.__getitem__.assert_called_once_with("topic_profiles")
+        mock_database.__getitem__.assert_called_once_with("aggregated_topic_attributes")
         mock_collection.update_one.assert_called_once_with(
             {"user_id": profile_data["user_id"]},
             {"$set": profile_data},

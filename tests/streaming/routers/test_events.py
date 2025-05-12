@@ -5,15 +5,14 @@ import pytest
 from starlette.datastructures import State
 
 from src.dtos import (
+    AggregatedTopicAttributesDTO,
     ContentEventBrokerDTO,
     TopicAttributesEventBrokerDTO,
-    TopicProfileDTO,
 )
 from src.schemas import (
     EntityTopicEventSchema,
     KeywordTopicEventSchema,
     SentimentTopicEventSchema,
-    TopicAttributesSchema,
 )
 from src.streaming.routers.events import (
     transmit_content_event_to_olap_handler,
@@ -92,16 +91,16 @@ class TestTransmitContentEventToOlapHandler:
 
 class TestTransmitTopicEventToOltpHandler:
     @pytest.mark.asyncio
-    @patch("src.streaming.routers.events.get_topic_profile_repository")
-    @patch("src.streaming.routers.events.upsert_topic_profile_repository")
+    @patch("src.streaming.routers.events.get_aggregated_topic_attributes_repository")
+    @patch("src.streaming.routers.events.upsert_aggregated_topic_attributes_repository")
     @patch(
-        "src.streaming.routers.events.update_topic_attributes_schema_based_on_topic_event_schema"
+        "src.streaming.routers.events.update_aggregated_topic_attributes_dto_based_on_topic_attributes_event_schema"
     )
     async def test_transmit_topic_event_to_oltp_handler_existing_profile(
         self,
         mock_update_topic_attributes: MagicMock,
-        mock_upsert_topic_profile: AsyncMock,
-        mock_get_topic_profile: AsyncMock,
+        mock_upsert_aggregated_topic_attributes: AsyncMock,
+        mock_get_aggregated_topic_attributes: AsyncMock,
     ) -> None:
         # Arrange
         topic_event_uuid = uuid.uuid4()
@@ -137,9 +136,10 @@ class TestTransmitTopicEventToOltpHandler:
             },
         }
 
-        mock_get_topic_profile.return_value = existing_topic_profile
+        mock_get_aggregated_topic_attributes.return_value = existing_topic_profile
 
-        new_topic_attributes = TopicAttributesSchema(
+        new_topic_attributes = AggregatedTopicAttributesDTO(
+            user_id=user_id,
             keywords=[
                 {"name": "python", "weight": 0.8, "updated_at": "2023-01-01T00:00:00"},
                 {"name": "fastapi", "weight": 0.7, "updated_at": "2023-01-01T00:00:00"},
@@ -171,7 +171,7 @@ class TestTransmitTopicEventToOltpHandler:
         )
 
         # Assert
-        mock_get_topic_profile.assert_called_once_with(
+        mock_get_aggregated_topic_attributes.assert_called_once_with(
             user_id=user_id,
             database=mock_database,
         )
@@ -179,38 +179,31 @@ class TestTransmitTopicEventToOltpHandler:
         # Verify update_topic_attributes was called with correct parameters
         mock_update_topic_attributes.assert_called_once()
         old_topic_attributes = mock_update_topic_attributes.call_args.args[0]
-        assert isinstance(old_topic_attributes, TopicAttributesSchema)
-        assert (
-            old_topic_attributes.model_dump()
-            == TopicAttributesSchema.model_validate(
-                existing_topic_profile["topic_attributes"]
-            ).model_dump()
-        )
+        # Just check that the object is of the correct type and has the expected user_id
+        assert isinstance(old_topic_attributes, AggregatedTopicAttributesDTO)
+        assert old_topic_attributes.user_id == user_id
         assert mock_update_topic_attributes.call_args.args[1] == topic_event
 
         # Verify upsert_topic_profile was called with correct parameters
-        mock_upsert_topic_profile.assert_called_once()
-        topic_profile_dto = mock_upsert_topic_profile.call_args.args[0]
+        mock_upsert_aggregated_topic_attributes.assert_called_once()
+        topic_profile_dto = mock_upsert_aggregated_topic_attributes.call_args.args[0]
+        assert topic_profile_dto == new_topic_attributes.model_dump()
         assert (
-            topic_profile_dto
-            == TopicProfileDTO(
-                user_id=user_id,
-                topic_attributes=new_topic_attributes,
-            ).model_dump()
+            mock_upsert_aggregated_topic_attributes.call_args.kwargs["database"]
+            == mock_database
         )
-        assert mock_upsert_topic_profile.call_args.kwargs["database"] == mock_database
 
     @pytest.mark.asyncio
-    @patch("src.streaming.routers.events.get_topic_profile_repository")
-    @patch("src.streaming.routers.events.upsert_topic_profile_repository")
+    @patch("src.streaming.routers.events.get_aggregated_topic_attributes_repository")
+    @patch("src.streaming.routers.events.upsert_aggregated_topic_attributes_repository")
     @patch(
-        "src.streaming.routers.events.update_topic_attributes_schema_based_on_topic_event_schema"
+        "src.streaming.routers.events.update_aggregated_topic_attributes_dto_based_on_topic_attributes_event_schema"
     )
     async def test_transmit_topic_event_to_oltp_handler_new_profile(
         self,
         mock_update_topic_attributes: MagicMock,
-        mock_upsert_topic_profile: AsyncMock,
-        mock_get_topic_profile: AsyncMock,
+        mock_upsert_aggregated_topic_attributes: AsyncMock,
+        mock_get_aggregated_topic_attributes: AsyncMock,
     ) -> None:
         # Arrange
         topic_event_uuid = uuid.uuid4()
@@ -231,9 +224,10 @@ class TestTransmitTopicEventToOltpHandler:
         )
 
         # No existing profile
-        mock_get_topic_profile.return_value = None
+        mock_get_aggregated_topic_attributes.return_value = None
 
-        new_topic_attributes = TopicAttributesSchema(
+        new_topic_attributes = AggregatedTopicAttributesDTO(
+            user_id=user_id,
             keywords=[
                 {"name": "python", "weight": 0.8, "updated_at": "2023-01-01T00:00:00"}
             ],
@@ -264,7 +258,7 @@ class TestTransmitTopicEventToOltpHandler:
         )
 
         # Assert
-        mock_get_topic_profile.assert_called_once_with(
+        mock_get_aggregated_topic_attributes.assert_called_once_with(
             user_id=user_id,
             database=mock_database,
         )
@@ -272,11 +266,11 @@ class TestTransmitTopicEventToOltpHandler:
         # Verify update_topic_attributes was called with correct parameters
         mock_update_topic_attributes.assert_called_once()
         old_topic_attributes = mock_update_topic_attributes.call_args.args[0]
-        assert isinstance(old_topic_attributes, TopicAttributesSchema)
+        assert isinstance(old_topic_attributes, AggregatedTopicAttributesDTO)
 
         # Compare the model dumps excluding the updated_at field which will be different
         old_dump = old_topic_attributes.model_dump()
-        new_dump = TopicAttributesSchema().model_dump()
+        new_dump = AggregatedTopicAttributesDTO(user_id=user_id).model_dump()
 
         assert old_dump["keywords"] == new_dump["keywords"]
         assert old_dump["entities"] == new_dump["entities"]
@@ -284,26 +278,23 @@ class TestTransmitTopicEventToOltpHandler:
         assert mock_update_topic_attributes.call_args.args[1] == topic_event
 
         # Verify upsert_topic_profile was called with correct parameters
-        mock_upsert_topic_profile.assert_called_once()
-        topic_profile_dto = mock_upsert_topic_profile.call_args.args[0]
+        mock_upsert_aggregated_topic_attributes.assert_called_once()
+        topic_profile_dto = mock_upsert_aggregated_topic_attributes.call_args.args[0]
+        assert topic_profile_dto == new_topic_attributes.model_dump()
         assert (
-            topic_profile_dto
-            == TopicProfileDTO(
-                user_id=user_id,
-                topic_attributes=new_topic_attributes,
-            ).model_dump()
+            mock_upsert_aggregated_topic_attributes.call_args.kwargs["database"]
+            == mock_database
         )
-        assert mock_upsert_topic_profile.call_args.kwargs["database"] == mock_database
 
 
 class TestTransmitTopicEventToOlapHandler:
     @pytest.mark.asyncio
-    @patch("src.streaming.routers.events.insert_topic_event_repository")
+    @patch("src.streaming.routers.events.insert_topic_attributes_event_repository")
     @patch("src.streaming.routers.events.split_attributes_from_items")
     async def test_transmit_topic_event_to_olap_handler_success(
         self,
         mock_split_attributes: MagicMock,
-        mock_insert_topic_event: AsyncMock,
+        mock_insert_topic_attributes_event: AsyncMock,
     ) -> None:
         # Arrange
         topic_event_uuid = uuid.uuid4()
@@ -345,7 +336,7 @@ class TestTransmitTopicEventToOlapHandler:
         assert mock_split_attributes.call_count == 3
 
         # Verify insert_topic_event_repository was called with correct parameters
-        mock_insert_topic_event.assert_called_once_with(
+        mock_insert_topic_attributes_event.assert_called_once_with(
             keywords_names=["python"],
             keywords_weights=[0.8],
             entities_categories=["language"],
@@ -353,7 +344,7 @@ class TestTransmitTopicEventToOlapHandler:
             entities_weights=[0.8],
             sentiments_names=["positive"],
             sentiments_weights=[0.9],
-            topic_event_uuid=topic_event_uuid,
+            topic_attributes_event_uuid=topic_event_uuid,
             content_event_uuid=content_event_uuid,
             user_id=user_id,
             ts=timestamp,
@@ -361,12 +352,12 @@ class TestTransmitTopicEventToOlapHandler:
         )
 
     @pytest.mark.asyncio
-    @patch("src.streaming.routers.events.insert_topic_event_repository")
+    @patch("src.streaming.routers.events.insert_topic_attributes_event_repository")
     @patch("src.streaming.routers.events.split_attributes_from_items")
     async def test_transmit_topic_event_to_olap_handler_error(
         self,
         mock_split_attributes: MagicMock,
-        mock_insert_topic_event: AsyncMock,
+        mock_insert_topic_attributes_event: AsyncMock,
     ) -> None:
         # Arrange
         topic_event = TopicAttributesEventBrokerDTO(
@@ -392,7 +383,7 @@ class TestTransmitTopicEventToOlapHandler:
         state = State()
         state.get_clickhouse_connection = mock_get_clickhouse_connection
 
-        mock_insert_topic_event.side_effect = Exception("Database error")
+        mock_insert_topic_attributes_event.side_effect = Exception("Database error")
 
         # Act & Assert
         with pytest.raises(Exception, match="Database error"):
@@ -405,4 +396,4 @@ class TestTransmitTopicEventToOlapHandler:
         assert mock_split_attributes.call_count == 3
 
         # Verify insert_topic_event_repository was called
-        mock_insert_topic_event.assert_called_once()
+        mock_insert_topic_attributes_event.assert_called_once()

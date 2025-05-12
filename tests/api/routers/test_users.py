@@ -8,8 +8,7 @@ from fastapi_pagination import Page, Params
 from starlette.responses import Response
 
 from src.api.routers.users import router
-from src.dtos import UserCreateDTO, UserGetDTO
-from src.schemas import TopicAttributesSchema
+from src.dtos import AggregatedTopicAttributesDTO, UserCreateDTO, UserGetDTO
 
 
 class TestGetUsersWithTopicProfilesEndpoint:
@@ -41,7 +40,7 @@ class TestGetUsersWithTopicProfilesEndpoint:
 
         return app
 
-    @patch("src.api.routers.users.get_users_with_topic_profiles_paginated_repository")
+    @patch("src.api.routers.users.get_users_with_topic_info_paginated_repository")
     def test_get_users_with_topic_profiles_endpoint_success(
         self,
         mock_get_users: AsyncMock,
@@ -55,12 +54,12 @@ class TestGetUsersWithTopicProfilesEndpoint:
                 UserGetDTO(
                     user_id="user1",
                     username="User 1",
-                    topic_attributes=TopicAttributesSchema(),
+                    topic_attributes=AggregatedTopicAttributesDTO(user_id="user1"),
                 ),
                 UserGetDTO(
                     user_id="user2",
                     username="User 2",
-                    topic_attributes=TopicAttributesSchema(),
+                    topic_attributes=AggregatedTopicAttributesDTO(user_id="user2"),
                 ),
             ],
             total=2,
@@ -89,7 +88,7 @@ class TestGetUsersWithTopicProfilesEndpoint:
         assert isinstance(call_kwargs["params"], Params)
         assert call_kwargs["database"] == mock_database
 
-    @patch("src.api.routers.users.get_users_with_topic_profiles_paginated_repository")
+    @patch("src.api.routers.users.get_users_with_topic_info_paginated_repository")
     def test_get_users_with_topic_profiles_endpoint_with_filters(
         self,
         mock_get_users: AsyncMock,
@@ -103,7 +102,7 @@ class TestGetUsersWithTopicProfilesEndpoint:
                 UserGetDTO(
                     user_id="user1",
                     username="User 1",
-                    topic_attributes=TopicAttributesSchema(),
+                    topic_attributes=AggregatedTopicAttributesDTO(user_id="user1"),
                 ),
             ],
             total=1,
@@ -163,7 +162,7 @@ class TestCreateUserEndpoint:
 
         return app
 
-    @patch("src.api.routers.users.get_user_with_topic_profile_repository")
+    @patch("src.api.routers.users.get_user_with_topic_info_repository")
     @patch("src.api.routers.users.insert_user_repository")
     def test_create_user_endpoint_success(
         self,
@@ -200,7 +199,7 @@ class TestCreateUserEndpoint:
         response_data = response.json()
         assert response_data["user_id"] == "test_user_id"
         assert response_data["username"] == "Test User"
-        assert response_data["topic_attributes"] is None
+        assert response_data["aggregated_topic_attributes"] is None
 
         # Verify repository methods were called with correct parameters
         mock_get_user.assert_called_with(
@@ -212,7 +211,7 @@ class TestCreateUserEndpoint:
             database=mock_database,
         )
 
-    @patch("src.api.routers.users.get_user_with_topic_profile_repository")
+    @patch("src.api.routers.users.get_user_with_topic_info_repository")
     @patch("src.api.routers.users.insert_user_repository")
     def test_create_user_endpoint_user_already_exists(
         self,
@@ -307,7 +306,7 @@ class TestGetUserByIdEndpoint:
 
         return app
 
-    @patch("src.api.routers.users.get_user_with_topic_profile_repository")
+    @patch("src.api.routers.users.get_user_with_topic_info_repository")
     def test_get_user_by_id_endpoint_success(
         self,
         mock_get_user: AsyncMock,
@@ -320,13 +319,12 @@ class TestGetUserByIdEndpoint:
         mock_get_user.return_value = {
             "user_id": user_id,
             "username": "Test User",
-            "topic_profile": {
-                "topic_attributes": {
-                    "keywords": [],
-                    "entities": [],
-                    "sentiments": [],
-                    "updated_at": "2023-01-01T00:00:00",
-                }
+            "aggregated_topic_attributes": {
+                "user_id": user_id,
+                "keywords": [],
+                "entities": [],
+                "sentiments": [],
+                "updated_at": "2023-01-01T00:00:00",
             },
         }
 
@@ -338,8 +336,8 @@ class TestGetUserByIdEndpoint:
         response_data = response.json()
         assert response_data["user_id"] == user_id
         assert response_data["username"] == "Test User"
-        assert "topic_attributes" in response_data
-        assert "keywords" in response_data["topic_attributes"]
+        assert "aggregated_topic_attributes" in response_data
+        assert "keywords" in response_data["aggregated_topic_attributes"]
 
         # Verify repository was called with correct parameters
         mock_get_user.assert_called_once_with(
@@ -347,7 +345,7 @@ class TestGetUserByIdEndpoint:
             database=mock_database,
         )
 
-    @patch("src.api.routers.users.get_user_with_topic_profile_repository")
+    @patch("src.api.routers.users.get_user_with_topic_info_repository")
     def test_get_user_by_id_endpoint_user_not_found(
         self,
         mock_get_user: AsyncMock,

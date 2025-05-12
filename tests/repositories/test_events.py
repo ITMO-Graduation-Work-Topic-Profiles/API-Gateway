@@ -130,8 +130,8 @@ class TestInsertTopicEventRepository:
         mock_cursor.execute.assert_called_once()
 
         sql, params = mock_cursor.execute.call_args.args
-        assert "INSERT INTO topic_events" in sql
-        assert "topic_event_uuid, content_event_uuid, user_id" in sql
+        assert "INSERT INTO topic_attributes_events" in sql
+        assert "topic_attributes_event_uuid, content_event_uuid, user_id" in sql
         assert "sentiments.name" in sql
         assert "sentiments.weight" in sql
         assert "keywords.name" in sql
