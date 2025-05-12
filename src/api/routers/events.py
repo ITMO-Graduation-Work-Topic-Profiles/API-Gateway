@@ -17,11 +17,11 @@ router = APIRouter(
 
 
 @router.post(
-    "/content",
+    "/content/submitForProcessing",
     status_code=status.HTTP_202_ACCEPTED,
     response_model=MessageResponseDTO,
 )
-async def create_content_event_endpoint(
+async def sumbit_content_event_for_processing_endpoint(
     request: Request,
     body: tp.Annotated[ContentEventCreateDTO, Body()],
 ) -> tp.Any:
@@ -39,3 +39,33 @@ async def create_content_event_endpoint(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to publish content event",
         )
+
+
+@router.get(
+    "/content",
+    status_code=status.HTTP_200_OK,
+    response_model=...,
+)
+async def get_content_events_endpoint(
+    request: Request,
+) -> tp.Any: ...
+
+
+@router.get(
+    "/topicAttributes",
+    status_code=status.HTTP_200_OK,
+    response_model=...,
+)
+async def get_topic_attributes_events_endpoint(
+    request: Request,
+) -> tp.Any: ...
+
+
+@router.get(
+    "/topicAttributes/{topic_attributes_event_uuid}",
+    status_code=status.HTTP_200_OK,
+    response_model=...,
+)
+async def get_topic_attributes_event_endpoint(
+    request: Request,
+) -> tp.Any: ...
