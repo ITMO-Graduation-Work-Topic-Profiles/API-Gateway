@@ -6,14 +6,14 @@ from fastapi_pagination.types import AsyncItemsTransformer
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 __all__ = [
-    "get_users_with_topic_profiles_paginated_repository",
-    "get_user_with_topic_profile_repository",
+    "get_users_with_topic_info_paginated_repository",
+    "get_user_with_topic_info_repository",
     "get_user_repository",
     "insert_user_repository",
 ]
 
 
-def build_get_users_with_topic_profiles_pipeline(
+def build_get_users_with_topic_info_pipeline(
     keywords: tp.Sequence[str] = (),
     entities: tp.Sequence[str] = (),
     sentiments: tp.Sequence[str] = (),
@@ -27,10 +27,10 @@ def build_get_users_with_topic_profiles_pipeline(
     pipeline.append(
         {
             "$lookup": {
-                "from": "topic_profiles",
+                "from": "aggregated_topic_attributes",
                 "localField": "user_id",
                 "foreignField": "user_id",
-                "as": "topic_profile",
+                "as": "aggregated_topic_attributes",
             }
         }
     )
@@ -38,7 +38,7 @@ def build_get_users_with_topic_profiles_pipeline(
     pipeline.append(
         {
             "$unwind": {
-                "path": "$topic_profile",
+                "path": "$aggregated_topic_attributes",
                 "preserveNullAndEmptyArrays": True,
             },
         },
@@ -46,13 +46,11 @@ def build_get_users_with_topic_profiles_pipeline(
 
     match_stage: dict[str, tp.Any] = {}
     if keywords:
-        match_stage["topic_profile.topic_attributes.keywords.name"] = {"$in": keywords}
+        match_stage["aggregated_topic_attributes.keywords.name"] = {"$in": keywords}
     if entities:
-        match_stage["topic_profile.topic_attributes.entities.name"] = {"$in": entities}
+        match_stage["aggregated_topic_attributes.entities.name"] = {"$in": entities}
     if sentiments:
-        match_stage["topic_profile.topic_attributes.sentiments.name"] = {
-            "$in": sentiments
-        }
+        match_stage["aggregated_topic_attributes.sentiments.name"] = {"$in": sentiments}
 
     if match_stage:
         pipeline.append(
@@ -69,7 +67,7 @@ def build_get_users_with_topic_profiles_pipeline(
                         "$map": {
                             "input": {
                                 "$filter": {
-                                    "input": "$topic_profile.topic_attributes.keywords",
+                                    "input": "$aggregated_topic_attributes.keywords",
                                     "as": "t",
                                     "cond": {"$in": ["$$t.name", keywords]},
                                 }
@@ -84,7 +82,7 @@ def build_get_users_with_topic_profiles_pipeline(
                         "$map": {
                             "input": {
                                 "$filter": {
-                                    "input": "$topic_profile.topic_attributes.entities",
+                                    "input": "$aggregated_topic_attributes.entities",
                                     "as": "e",
                                     "cond": {"$in": ["$$e.name", entities]},
                                 }
@@ -99,7 +97,7 @@ def build_get_users_with_topic_profiles_pipeline(
                         "$map": {
                             "input": {
                                 "$filter": {
-                                    "input": "$topic_profile.topic_attributes.sentiments",
+                                    "input": "$aggregated_topic_attributes.sentiments",
                                     "as": "s",
                                     "cond": {"$in": ["$$s.name", sentiments]},
                                 }
@@ -126,7 +124,7 @@ def build_get_users_with_topic_profiles_pipeline(
     return pipeline
 
 
-async def get_users_with_topic_profiles_paginated_repository(
+async def get_users_with_topic_info_paginated_repository(
     *,
     database: AsyncIOMotorDatabase[tp.Any],
     params: Params,
@@ -135,13 +133,13 @@ async def get_users_with_topic_profiles_paginated_repository(
 ) -> tp.Any:
     return await apaginate_aggregate(
         database["users"],
-        build_get_users_with_topic_profiles_pipeline(**pipeline_kwargs),
+        build_get_users_with_topic_info_pipeline(**pipeline_kwargs),
         params,
         transformer=transformer,
     )
 
 
-def build_get_user_with_topic_profile_pipeline(
+def build_get_user_with_topic_info_pipeline(
     user_id: str,
 ) -> list[dict[str, tp.Any]]:
     pipeline: list[dict[str, tp.Any]] = []
@@ -152,17 +150,17 @@ def build_get_user_with_topic_profile_pipeline(
     pipeline.append(
         {
             "$lookup": {
-                "from": "topic_profiles",
+                "from": "aggregated_topic_attributes",
                 "localField": "user_id",
                 "foreignField": "user_id",
-                "as": "topic_profile",
+                "as": "aggregated_topic_attributes",
             }
         },
     )
     pipeline.append(
         {
             "$unwind": {
-                "path": "$topic_profile",
+                "path": "$aggregated_topic_attributes",
                 "preserveNullAndEmptyArrays": True,
             },
         },
@@ -171,12 +169,12 @@ def build_get_user_with_topic_profile_pipeline(
     return pipeline
 
 
-async def get_user_with_topic_profile_repository(
+async def get_user_with_topic_info_repository(
     *,
     database: AsyncIOMotorDatabase[tp.Any],
     **pipeline_kwargs: tp.Any,
 ) -> dict[str, tp.Any] | None:
-    pipeline = build_get_user_with_topic_profile_pipeline(**pipeline_kwargs)
+    pipeline = build_get_user_with_topic_info_pipeline(**pipeline_kwargs)
     result = await database["users"].aggregate(pipeline).to_list(1)
     return result[0] if result else None
 

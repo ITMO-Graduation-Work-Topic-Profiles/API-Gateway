@@ -5,11 +5,11 @@ from fastapi_pagination import Params
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from src.repositories.users import (
-    build_get_user_with_topic_profile_pipeline,
-    build_get_users_with_topic_profiles_pipeline,
+    build_get_user_with_topic_info_pipeline,
+    build_get_users_with_topic_info_pipeline,
     get_user_repository,
-    get_user_with_topic_profile_repository,
-    get_users_with_topic_profiles_paginated_repository,
+    get_user_with_topic_info_repository,
+    get_users_with_topic_info_paginated_repository,
     insert_user_repository,
 )
 
@@ -17,7 +17,7 @@ from src.repositories.users import (
 class TestBuildGetUsersWithTopicProfilesPipeline:
     def test_build_get_users_with_topic_profiles_pipeline_no_filters(self) -> None:
         # Act
-        pipeline = build_get_users_with_topic_profiles_pipeline()
+        pipeline = build_get_users_with_topic_info_pipeline()
 
         # Assert
         assert isinstance(pipeline, list)
@@ -51,7 +51,7 @@ class TestBuildGetUsersWithTopicProfilesPipeline:
         sentiments = ["positive"]
 
         # Act
-        pipeline = build_get_users_with_topic_profiles_pipeline(
+        pipeline = build_get_users_with_topic_info_pipeline(
             keywords=keywords,
             entities=entities,
             sentiments=sentiments,
@@ -104,7 +104,7 @@ class TestGetUsersWithTopicProfilesPaginatedRepository:
         mock_apaginate_aggregate.return_value = expected_result
 
         # Act
-        result = await get_users_with_topic_profiles_paginated_repository(
+        result = await get_users_with_topic_info_paginated_repository(
             database=mock_database,
             params=mock_params,
             transformer=mock_transformer,
@@ -131,7 +131,7 @@ class TestBuildGetUserWithTopicProfilePipeline:
         user_id = "test_user_id"
 
         # Act
-        pipeline = build_get_user_with_topic_profile_pipeline(user_id=user_id)
+        pipeline = build_get_user_with_topic_info_pipeline(user_id=user_id)
 
         # Assert
         assert isinstance(pipeline, list)
@@ -183,7 +183,7 @@ class TestGetUserWithTopicProfileRepository:
         mock_database.__getitem__.return_value = mock_collection
 
         # Act
-        result = await get_user_with_topic_profile_repository(
+        result = await get_user_with_topic_info_repository(
             user_id=user_id,
             database=mock_database,
         )
@@ -209,7 +209,7 @@ class TestGetUserWithTopicProfileRepository:
         mock_database.__getitem__.return_value = mock_collection
 
         # Act
-        result = await get_user_with_topic_profile_repository(
+        result = await get_user_with_topic_info_repository(
             user_id=user_id,
             database=mock_database,
         )

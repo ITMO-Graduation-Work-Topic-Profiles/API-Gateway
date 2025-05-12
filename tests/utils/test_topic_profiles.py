@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.dtos import TopicEventBrokerDTO
+from src.dtos import AggregatedTopicAttributesDTO, TopicAttributesEventBrokerDTO
 from src.schemas import (
     EntityTopicEventSchema,
     EntityTopicProfileSchema,
@@ -12,9 +12,8 @@ from src.schemas import (
     KeywordTopicProfileSchema,
     SentimentTopicEventSchema,
     SentimentTopicProfileSchema,
-    TopicAttributesSchema,
 )
-from src.utils.topic_profiles import (
+from src.utils.aggregated_topic_attributes import (
     build_key_from_item_fields,
     merge_entities,
     merge_entities_schemas,
@@ -23,7 +22,7 @@ from src.utils.topic_profiles import (
     merge_sentiment,
     merge_sentiment_schemas,
     merge_weighted_item_lists,
-    update_topic_attributes_schema_based_on_topic_event_schema,
+    update_aggregated_topic_attributes_dto_based_on_topic_attributes_event_schema,
 )
 
 
@@ -66,7 +65,7 @@ class TestBuildKeyFromItemFields:
 
 
 class TestMergeWeightedItemLists:
-    @patch("src.utils.topic_profiles.utcnow")
+    @patch("src.utils.aggregated_topic_attributes.utcnow")
     def test_empty_lists(self, mock_utcnow: MagicMock, mock_time: datetime) -> None:
         mock_utcnow.return_value = mock_time
 
@@ -82,7 +81,7 @@ class TestMergeWeightedItemLists:
 
         assert result == []
 
-    @patch("src.utils.topic_profiles.utcnow")
+    @patch("src.utils.aggregated_topic_attributes.utcnow")
     def test_new_items_only(self, mock_utcnow: MagicMock, mock_time: datetime) -> None:
         mock_utcnow.return_value = mock_time
 
@@ -108,7 +107,7 @@ class TestMergeWeightedItemLists:
 
         assert result == expected
 
-    @patch("src.utils.topic_profiles.utcnow")
+    @patch("src.utils.aggregated_topic_attributes.utcnow")
     def test_existing_items_only(self, mock_utcnow: MagicMock) -> None:
         mock_time = datetime(2023, 1, 1, tzinfo=timezone.utc)
         mock_utcnow.return_value = mock_time
@@ -149,7 +148,7 @@ class TestMergeWeightedItemLists:
         assert result[1]["weight"] == 0.5
         assert result[1]["timestamp"] == datetime(2022, 1, 1, tzinfo=timezone.utc)
 
-    @patch("src.utils.topic_profiles.utcnow")
+    @patch("src.utils.aggregated_topic_attributes.utcnow")
     def test_merge_with_existing_items(
         self, mock_utcnow: MagicMock, mock_time: datetime
     ) -> None:
@@ -202,7 +201,7 @@ class TestMergeWeightedItemLists:
         assert result[2]["weight"] == 0.5
         assert result[2]["timestamp"] == datetime(2022, 1, 1, tzinfo=timezone.utc)
 
-    @patch("src.utils.topic_profiles.utcnow")
+    @patch("src.utils.aggregated_topic_attributes.utcnow")
     def test_merge_with_additional_fields(
         self, mock_utcnow: MagicMock, mock_time: datetime
     ) -> None:
@@ -238,7 +237,7 @@ class TestMergeWeightedItemLists:
         assert result[0]["timestamp"] == mock_time
         assert result[0]["extra_field"] == "extra_value"
 
-    @patch("src.utils.topic_profiles.utcnow")
+    @patch("src.utils.aggregated_topic_attributes.utcnow")
     def test_limit_applied(self, mock_utcnow: MagicMock, mock_time: datetime) -> None:
         mock_utcnow.return_value = mock_time
 
@@ -262,7 +261,7 @@ class TestMergeWeightedItemLists:
         assert result[0]["id"] == 2
         assert result[1]["id"] == 1
 
-    @patch("src.utils.topic_profiles.utcnow")
+    @patch("src.utils.aggregated_topic_attributes.utcnow")
     def test_composite_key(self, mock_utcnow: MagicMock, mock_time: datetime) -> None:
         mock_utcnow.return_value = mock_time
 
@@ -315,7 +314,7 @@ class TestMergeWeightedItemLists:
 
 
 class TestMergeKeywords:
-    @patch("src.utils.topic_profiles.merge_weighted_item_lists")
+    @patch("src.utils.aggregated_topic_attributes.merge_weighted_item_lists")
     def test_merge_keywords_calls_merge_weighted_item_lists_with_correct_params(
         self, mock_merge_weighted_item_lists: MagicMock
     ) -> None:
@@ -337,7 +336,7 @@ class TestMergeKeywords:
         )
         assert result == mock_result
 
-    @patch("src.utils.topic_profiles.utcnow")
+    @patch("src.utils.aggregated_topic_attributes.utcnow")
     def test_merge_keywords_integration(
         self, mock_utcnow: MagicMock, mock_time: datetime
     ) -> None:
@@ -382,7 +381,7 @@ class TestMergeKeywords:
 
 
 class TestMergeEntities:
-    @patch("src.utils.topic_profiles.merge_weighted_item_lists")
+    @patch("src.utils.aggregated_topic_attributes.merge_weighted_item_lists")
     def test_merge_entities_calls_merge_weighted_item_lists_with_correct_params(
         self, mock_merge_weighted_item_lists: MagicMock
     ) -> None:
@@ -404,7 +403,7 @@ class TestMergeEntities:
         )
         assert result == mock_result
 
-    @patch("src.utils.topic_profiles.utcnow")
+    @patch("src.utils.aggregated_topic_attributes.utcnow")
     def test_merge_entities_integration(
         self, mock_utcnow: MagicMock, mock_time: datetime
     ) -> None:
@@ -454,7 +453,7 @@ class TestMergeEntities:
 
 
 class TestMergeSentiment:
-    @patch("src.utils.topic_profiles.merge_weighted_item_lists")
+    @patch("src.utils.aggregated_topic_attributes.merge_weighted_item_lists")
     def test_merge_sentiment_calls_merge_weighted_item_lists_with_correct_params(
         self, mock_merge_weighted_item_lists: MagicMock
     ) -> None:
@@ -476,7 +475,7 @@ class TestMergeSentiment:
         )
         assert result == mock_result
 
-    @patch("src.utils.topic_profiles.utcnow")
+    @patch("src.utils.aggregated_topic_attributes.utcnow")
     def test_merge_sentiment_integration(
         self, mock_utcnow: MagicMock, mock_time: datetime
     ) -> None:
@@ -521,7 +520,7 @@ class TestMergeSentiment:
 
 
 class TestMergeKeywordsSchemas:
-    @patch("src.utils.topic_profiles.merge_keywords")
+    @patch("src.utils.aggregated_topic_attributes.merge_keywords")
     def test_merge_keywords_schemas_calls_merge_keywords_with_correct_params(
         self, mock_merge_keywords: MagicMock
     ) -> None:
@@ -567,7 +566,7 @@ class TestMergeKeywordsSchemas:
         result = merge_keywords_schemas([], [])
         assert result == []
 
-    @patch("src.utils.topic_profiles.utcnow")
+    @patch("src.utils.aggregated_topic_attributes.utcnow")
     def test_merge_keywords_schemas_integration(
         self, mock_utcnow: MagicMock, mock_time: datetime
     ) -> None:
@@ -608,7 +607,7 @@ class TestMergeKeywordsSchemas:
 
 
 class TestMergeEntitiesSchemas:
-    @patch("src.utils.topic_profiles.merge_entities")
+    @patch("src.utils.aggregated_topic_attributes.merge_entities")
     def test_merge_entities_schemas_calls_merge_entities_with_correct_params(
         self, mock_merge_entities: MagicMock
     ) -> None:
@@ -658,7 +657,7 @@ class TestMergeEntitiesSchemas:
         result = merge_entities_schemas([], [])
         assert result == []
 
-    @patch("src.utils.topic_profiles.utcnow")
+    @patch("src.utils.aggregated_topic_attributes.utcnow")
     def test_merge_entities_schemas_integration(
         self, mock_utcnow: MagicMock, mock_time: datetime
     ) -> None:
@@ -704,7 +703,7 @@ class TestMergeEntitiesSchemas:
 
 
 class TestMergeSentimentSchemas:
-    @patch("src.utils.topic_profiles.merge_sentiment")
+    @patch("src.utils.aggregated_topic_attributes.merge_sentiment")
     def test_merge_sentiment_schemas_calls_merge_sentiment_with_correct_params(
         self, mock_merge_sentiment: MagicMock
     ) -> None:
@@ -750,7 +749,7 @@ class TestMergeSentimentSchemas:
         result = merge_sentiment_schemas([], [])
         assert result == []
 
-    @patch("src.utils.topic_profiles.utcnow")
+    @patch("src.utils.aggregated_topic_attributes.utcnow")
     def test_merge_sentiment_schemas_integration(
         self, mock_utcnow: MagicMock, mock_time: datetime
     ) -> None:
@@ -790,14 +789,14 @@ class TestMergeSentimentSchemas:
         assert result[2].updated_at == datetime(2022, 1, 1, tzinfo=timezone.utc)
 
 
-class TestUpdateTopicProfileSchemaBasedOnTopicEventSchema:
-    @patch("src.utils.topic_profiles.utcnow")
-    def test_update_topic_profile_schema_based_on_topic_event_schema(
+class TestUpdateAggregatedTopicAttributesDtoBasedOnTopicAttributesEventSchema:
+    @patch("src.utils.aggregated_topic_attributes.utcnow")
+    def test_update_aggregated_topic_attributes_dto_based_on_topic_attributes_event_schema(
         self, mock_utcnow: MagicMock, mock_time: datetime
     ) -> None:
         mock_utcnow.return_value = mock_time
 
-        existing_topic_profile = TopicAttributesSchema(
+        existing_topic_profile = AggregatedTopicAttributesDTO(
             keywords=[
                 KeywordTopicProfileSchema(
                     name="keyword1",
@@ -839,8 +838,8 @@ class TestUpdateTopicProfileSchemaBasedOnTopicEventSchema:
             updated_at=datetime(2022, 1, 1, tzinfo=timezone.utc),
         )
 
-        incoming_topic_event = TopicEventBrokerDTO(
-            topic_event_uuid=uuid.uuid4(),
+        incoming_topic_event = TopicAttributesEventBrokerDTO(
+            topic_attributes_event_uuid=uuid.uuid4(),
             content_event_uuid=uuid.uuid4(),
             user_id="user123",
             keywords=[
@@ -858,12 +857,12 @@ class TestUpdateTopicProfileSchemaBasedOnTopicEventSchema:
         )
 
         # Call the function
-        result = update_topic_attributes_schema_based_on_topic_event_schema(
+        result = update_aggregated_topic_attributes_dto_based_on_topic_attributes_event_schema(
             existing_topic_profile, incoming_topic_event
         )
 
         # Verify the result
-        assert isinstance(result, TopicAttributesSchema)
+        assert isinstance(result, AggregatedTopicAttributesDTO)
         assert result.updated_at == mock_time
 
         # Verify keywords
@@ -908,18 +907,18 @@ class TestUpdateTopicProfileSchemaBasedOnTopicEventSchema:
             2022, 1, 1, tzinfo=timezone.utc
         )
 
-    @patch("src.utils.topic_profiles.utcnow")
-    def test_update_topic_profile_schema_based_on_topic_event_schema_empty_profile(
+    @patch("src.utils.aggregated_topic_attributes.utcnow")
+    def test_update_aggregated_topic_attributes_dto_based_on_topic_attributes_event_schema_empty_profile(
         self, mock_utcnow: MagicMock, mock_time: datetime
     ) -> None:
         mock_utcnow.return_value = mock_time
 
         # Create empty existing topic profile
-        existing_topic_profile = TopicAttributesSchema()
+        existing_topic_profile = AggregatedTopicAttributesDTO()
 
         # Create incoming topic event
-        incoming_topic_event = TopicEventBrokerDTO(
-            topic_event_uuid=uuid.uuid4(),
+        incoming_topic_event = TopicAttributesEventBrokerDTO(
+            topic_attributes_event_uuid=uuid.uuid4(),
             content_event_uuid=uuid.uuid4(),
             user_id="user123",
             keywords=[
@@ -937,12 +936,12 @@ class TestUpdateTopicProfileSchemaBasedOnTopicEventSchema:
         )
 
         # Call the function
-        result = update_topic_attributes_schema_based_on_topic_event_schema(
+        result = update_aggregated_topic_attributes_dto_based_on_topic_attributes_event_schema(
             existing_topic_profile, incoming_topic_event
         )
 
         # Verify the result
-        assert isinstance(result, TopicAttributesSchema)
+        assert isinstance(result, AggregatedTopicAttributesDTO)
         assert result.updated_at == mock_time
 
         # Verify keywords

@@ -7,7 +7,7 @@ import pytest
 
 from src.repositories.events import (
     insert_content_event_repository,
-    insert_topic_event_repository,
+    insert_topic_attributes_event_repository,
 )
 from src.utils.dates import utcnow
 
@@ -112,7 +112,7 @@ class TestInsertTopicEventRepository:
 
         mock_get_connection = create_mock_connection_factory(connection=mock_connection)
 
-        await insert_topic_event_repository(
+        await insert_topic_attributes_event_repository(
             keywords_names=keywords_names,
             keywords_weights=keywords_weights,
             entities_categories=entities_categories,
@@ -120,7 +120,7 @@ class TestInsertTopicEventRepository:
             entities_weights=entities_weights,
             sentiments_names=sentiments_names,
             sentiments_weights=sentiments_weights,
-            topic_event_uuid=topic_event_uuid,
+            topic_attributes_event_uuid=topic_event_uuid,
             content_event_uuid=content_event_uuid,
             user_id=user_id,
             ts=ts,
@@ -174,7 +174,7 @@ class TestInsertTopicEventRepository:
         )
 
         with pytest.raises(Exception, match="Connection error"):
-            await insert_topic_event_repository(
+            await insert_topic_attributes_event_repository(
                 keywords_names=keywords_names,
                 keywords_weights=keywords_weights,
                 entities_categories=entities_categories,
@@ -182,7 +182,7 @@ class TestInsertTopicEventRepository:
                 entities_weights=entities_weights,
                 sentiments_names=sentiments_names,
                 sentiments_weights=sentiments_weights,
-                topic_event_uuid=topic_event_uuid,
+                topic_attributes_event_uuid=topic_event_uuid,
                 content_event_uuid=content_event_uuid,
                 user_id=user_id,
                 ts=ts,

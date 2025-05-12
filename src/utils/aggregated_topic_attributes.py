@@ -1,7 +1,7 @@
 import copy
 import typing as tp
 
-from src.dtos import TopicEventBrokerDTO
+from src.dtos import AggregatedTopicAttributesDTO, TopicAttributesEventBrokerDTO
 from src.schemas import (
     EntityTopicEventSchema,
     EntityTopicProfileSchema,
@@ -9,13 +9,12 @@ from src.schemas import (
     KeywordTopicProfileSchema,
     SentimentTopicEventSchema,
     SentimentTopicProfileSchema,
-    TopicAttributesSchema,
 )
 from src.utils.dates import utcnow
 from src.utils.weights import recalculate_weight
 
 __all__ = [
-    "update_topic_attributes_schema_based_on_topic_event_schema",
+    "update_aggregated_topic_attributes_dto_based_on_topic_attributes_event_schema",
 ]
 
 
@@ -169,27 +168,29 @@ def merge_sentiment_schemas(
     )
 
 
-def update_topic_attributes_schema_based_on_topic_event_schema(
-    existing_topic_profile: TopicAttributesSchema,
-    incoming_topic_event: TopicEventBrokerDTO,
-) -> TopicAttributesSchema:
+def update_aggregated_topic_attributes_dto_based_on_topic_attributes_event_schema(
+    existing_aggregated_topic_attributes: AggregatedTopicAttributesDTO,
+    incoming_topic_attributes_event: TopicAttributesEventBrokerDTO,
+) -> AggregatedTopicAttributesDTO:
     new_timestamp_value = utcnow()
-    new_topic_profile_schema = TopicAttributesSchema.model_validate(
-        existing_topic_profile.model_dump()
+    new_aggregated_topic_attributes_schema = (
+        AggregatedTopicAttributesDTO.model_validate(
+            existing_aggregated_topic_attributes.model_dump()
+        )
     )
 
-    new_topic_profile_schema.keywords = merge_keywords_schemas(
-        existing_topic_profile.keywords,
-        incoming_topic_event.keywords,
+    new_aggregated_topic_attributes_schema.keywords = merge_keywords_schemas(
+        existing_aggregated_topic_attributes.keywords,
+        incoming_topic_attributes_event.keywords,
     )
-    new_topic_profile_schema.entities = merge_entities_schemas(
-        existing_topic_profile.entities,
-        incoming_topic_event.entities,
+    new_aggregated_topic_attributes_schema.entities = merge_entities_schemas(
+        existing_aggregated_topic_attributes.entities,
+        incoming_topic_attributes_event.entities,
     )
-    new_topic_profile_schema.sentiments = merge_sentiment_schemas(
-        existing_topic_profile.sentiments,
-        incoming_topic_event.sentiments,
+    new_aggregated_topic_attributes_schema.sentiments = merge_sentiment_schemas(
+        existing_aggregated_topic_attributes.sentiments,
+        incoming_topic_attributes_event.sentiments,
     )
-    new_topic_profile_schema.updated_at = new_timestamp_value
+    new_aggregated_topic_attributes_schema.updated_at = new_timestamp_value
 
-    return new_topic_profile_schema
+    return new_aggregated_topic_attributes_schema

@@ -3,9 +3,9 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from src.repositories.topic_proflies import (
-    get_topic_profile_repository,
-    upsert_topic_profile_repository,
+from src.repositories.aggregated_topic_attributes import (
+    get_aggregated_topic_attributes_repository,
+    upsert_aggregated_topic_attributes_repository,
 )
 
 
@@ -50,7 +50,7 @@ class TestGetTopicProfileRepository:
         mock_database.__getitem__.return_value = mock_collection
 
         # Act
-        result = await get_topic_profile_repository(
+        result = await get_aggregated_topic_attributes_repository(
             user_id=user_id,
             database=mock_database,
         )
@@ -72,7 +72,7 @@ class TestGetTopicProfileRepository:
         mock_database.__getitem__.return_value = mock_collection
 
         # Act
-        result = await get_topic_profile_repository(
+        result = await get_aggregated_topic_attributes_repository(
             user_id=user_id,
             database=mock_database,
         )
@@ -95,7 +95,7 @@ class TestGetTopicProfileRepository:
 
         # Act & Assert
         with pytest.raises(Exception, match="Database error"):
-            await get_topic_profile_repository(
+            await get_aggregated_topic_attributes_repository(
                 user_id=user_id,
                 database=mock_database,
             )
@@ -144,7 +144,7 @@ class TestUpsertTopicProfileRepository:
         mock_database.__getitem__.return_value = mock_collection
 
         # Act
-        await upsert_topic_profile_repository(
+        await upsert_aggregated_topic_attributes_repository(
             data=profile_data,
             database=mock_database,
         )
@@ -174,7 +174,7 @@ class TestUpsertTopicProfileRepository:
 
         # Act & Assert
         with pytest.raises(ValueError, match="Missing user_id in data"):
-            await upsert_topic_profile_repository(
+            await upsert_aggregated_topic_attributes_repository(
                 data=profile_data,
                 database=mock_database,
             )
@@ -203,7 +203,7 @@ class TestUpsertTopicProfileRepository:
 
         # Act & Assert
         with pytest.raises(Exception, match="Database error"):
-            await upsert_topic_profile_repository(
+            await upsert_aggregated_topic_attributes_repository(
                 data=profile_data,
                 database=mock_database,
             )

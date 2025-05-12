@@ -4,7 +4,11 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from starlette.datastructures import State
 
-from src.dtos import ContentEventBrokerDTO, TopicEventBrokerDTO, TopicProfileDTO
+from src.dtos import (
+    ContentEventBrokerDTO,
+    TopicAttributesEventBrokerDTO,
+    TopicProfileDTO,
+)
 from src.schemas import (
     EntityTopicEventSchema,
     KeywordTopicEventSchema,
@@ -13,7 +17,7 @@ from src.schemas import (
 )
 from src.streaming.routers.events import (
     transmit_content_event_to_olap_handler,
-    transmit_topic_event_to_olap_handler,
+    transmit_topic_attributes_event_to_olap_handler,
     transmit_topic_event_to_oltp_handler,
 )
 from src.utils.dates import utcnow
@@ -105,8 +109,8 @@ class TestTransmitTopicEventToOltpHandler:
         user_id = "test_user_id"
         timestamp = utcnow()
 
-        topic_event = TopicEventBrokerDTO(
-            topic_event_uuid=topic_event_uuid,
+        topic_event = TopicAttributesEventBrokerDTO(
+            topic_attributes_event_uuid=topic_event_uuid,
             content_event_uuid=content_event_uuid,
             user_id=user_id,
             keywords=[KeywordTopicEventSchema(name="python", weight=0.8)],
@@ -214,8 +218,8 @@ class TestTransmitTopicEventToOltpHandler:
         user_id = "test_user_id"
         timestamp = utcnow()
 
-        topic_event = TopicEventBrokerDTO(
-            topic_event_uuid=topic_event_uuid,
+        topic_event = TopicAttributesEventBrokerDTO(
+            topic_attributes_event_uuid=topic_event_uuid,
             content_event_uuid=content_event_uuid,
             user_id=user_id,
             keywords=[KeywordTopicEventSchema(name="python", weight=0.8)],
@@ -307,8 +311,8 @@ class TestTransmitTopicEventToOlapHandler:
         user_id = "test_user_id"
         timestamp = utcnow()
 
-        topic_event = TopicEventBrokerDTO(
-            topic_event_uuid=topic_event_uuid,
+        topic_event = TopicAttributesEventBrokerDTO(
+            topic_attributes_event_uuid=topic_event_uuid,
             content_event_uuid=content_event_uuid,
             user_id=user_id,
             keywords=[KeywordTopicEventSchema(name="python", weight=0.8)],
@@ -331,7 +335,7 @@ class TestTransmitTopicEventToOlapHandler:
         state.get_clickhouse_connection = mock_get_clickhouse_connection
 
         # Act
-        await transmit_topic_event_to_olap_handler(
+        await transmit_topic_attributes_event_to_olap_handler(
             topic_event,
             state=state,
         )
@@ -365,8 +369,8 @@ class TestTransmitTopicEventToOlapHandler:
         mock_insert_topic_event: AsyncMock,
     ) -> None:
         # Arrange
-        topic_event = TopicEventBrokerDTO(
-            topic_event_uuid=uuid.uuid4(),
+        topic_event = TopicAttributesEventBrokerDTO(
+            topic_attributes_event_uuid=uuid.uuid4(),
             content_event_uuid=uuid.uuid4(),
             user_id="test_user_id",
             keywords=[KeywordTopicEventSchema(name="python", weight=0.8)],
@@ -392,7 +396,7 @@ class TestTransmitTopicEventToOlapHandler:
 
         # Act & Assert
         with pytest.raises(Exception, match="Database error"):
-            await transmit_topic_event_to_olap_handler(
+            await transmit_topic_attributes_event_to_olap_handler(
                 topic_event,
                 state=state,
             )

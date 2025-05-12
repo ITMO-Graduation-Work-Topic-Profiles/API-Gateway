@@ -2,15 +2,18 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from src.schemas.entities import EntityTopicProfileSchema
-from src.schemas.keywords import KeywordTopicProfileSchema
-from src.schemas.sentiments import SentimentTopicProfileSchema
+from src.schemas import (
+    EntityTopicProfileSchema,
+    KeywordTopicProfileSchema,
+    SentimentTopicProfileSchema,
+)
 from src.utils.dates import utcnow
 
-__all__ = ["TopicAttributesSchema"]
+__all__ = ["AggregatedTopicAttributesDTO"]
 
 
-class TopicAttributesSchema(BaseModel):
+class AggregatedTopicAttributesDTO(BaseModel):
+    user_id: str
     keywords: list[KeywordTopicProfileSchema] = Field(default_factory=list)
     entities: list[EntityTopicProfileSchema] = Field(default_factory=list)
     sentiments: list[SentimentTopicProfileSchema] = Field(default_factory=list)
