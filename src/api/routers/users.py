@@ -111,7 +111,7 @@ async def get_user_by_id_endpoint(
 @router.post(
     "/{user_id}/topicProfile/submitForProcessing",
     status_code=status.HTTP_202_ACCEPTED,
-    response_model=...,
+    response_model=None,
 )
 async def sumbit_topic_profile_for_processing_endpoint(
     request: Request,

@@ -1,6 +1,6 @@
 import typing as tp
 
-from fastapi import APIRouter, Body, HTTPException, Request, status
+from fastapi import APIRouter, Body, Request, status
 
 from src.api.transformers import (
     content_event_create_dto_to_content_event_broker_publish_dto_transformer,
@@ -25,26 +25,17 @@ async def sumbit_content_event_for_processing_endpoint(
     request: Request,
     body: tp.Annotated[ContentEventCreateDTO, Body()],
 ) -> tp.Any:
-    # TODO: Get rid of try-except construction, it is necessary only for testing
-    try:
-        await request.state.broker.publish(
-            content_event_create_dto_to_content_event_broker_publish_dto_transformer(
-                body
-            ),
-            "events-content",
-        )
-        return MessageResponseDTO(message="Content event has been queued for creation")
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to publish content event",
-        )
+    await request.state.broker.publish(
+        content_event_create_dto_to_content_event_broker_publish_dto_transformer(body),
+        "events-content",
+    )
+    return MessageResponseDTO(message="Content event has been queued for creation")
 
 
 @router.get(
     "/content",
     status_code=status.HTTP_200_OK,
-    response_model=...,
+    response_model=None,
 )
 async def get_content_events_endpoint(
     request: Request,
@@ -54,7 +45,7 @@ async def get_content_events_endpoint(
 @router.get(
     "/topicAttributes",
     status_code=status.HTTP_200_OK,
-    response_model=...,
+    response_model=None,
 )
 async def get_topic_attributes_events_endpoint(
     request: Request,
@@ -64,7 +55,7 @@ async def get_topic_attributes_events_endpoint(
 @router.get(
     "/topicAttributes/{topic_attributes_event_uuid}",
     status_code=status.HTTP_200_OK,
-    response_model=...,
+    response_model=None,
 )
 async def get_topic_attributes_event_endpoint(
     request: Request,

@@ -48,7 +48,7 @@ class TestCreateContentEventEndpoint:
         )
 
         response = client.post(
-            "/events/content",
+            "/events/content/submitForProcessing",
             json=content_event_create_dto.model_dump(),
         )
 
@@ -78,7 +78,7 @@ class TestCreateContentEventEndpoint:
         }
 
         response = client.post(
-            "/events/content",
+            "/events/content/submitForProcessing",
             json=invalid_data,
         )
 
@@ -88,21 +88,3 @@ class TestCreateContentEventEndpoint:
         assert any("user_id" in error["loc"] for error in response_data["detail"])
 
         mock_broker.publish.assert_not_called()
-
-    def test_create_content_event_endpoint_broker_error(
-        self, client: TestClient, app_with_broker: FastAPI, mock_broker: AsyncMock
-    ) -> None:
-        content_event_create_dto = ContentEventCreateDTO(
-            user_id="test_user_id",
-            content="Test content",
-        )
-        mock_broker.publish.side_effect = Exception("Broker error")
-
-        response = client.post(
-            "/events/content",
-            json=content_event_create_dto.model_dump(),
-        )
-
-        assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
-
-        mock_broker.publish.assert_called_once()
