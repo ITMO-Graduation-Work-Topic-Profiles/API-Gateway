@@ -21,7 +21,7 @@ router = APIRouter(
     status_code=status.HTTP_202_ACCEPTED,
     response_model=MessageResponseDTO,
 )
-async def sumbit_content_event_for_processing_endpoint(
+async def submit_content_event_for_processing_endpoint(
     request: Request,
     body: tp.Annotated[ContentEventCreateDTO, Body()],
 ) -> tp.Any:

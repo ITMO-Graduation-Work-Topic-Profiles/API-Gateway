@@ -113,6 +113,6 @@ async def get_user_by_id_endpoint(
     status_code=status.HTTP_202_ACCEPTED,
     response_model=None,
 )
-async def sumbit_topic_profile_for_processing_endpoint(
+async def submit_topic_profile_for_processing_endpoint(
     request: Request,
 ) -> tp.Any: ...
