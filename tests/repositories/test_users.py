@@ -133,7 +133,7 @@ class TestBuildGetUserWithTopicProfilePipeline:
 
         # Assert
         assert isinstance(pipeline, list)
-        assert len(pipeline) == 3  # match, lookup, and unwind stages
+        assert len(pipeline) == 5  # match, lookup, and unwind stages
 
         # Verify match stage
         match_stage = pipeline[0]
@@ -148,7 +148,7 @@ class TestBuildGetUserWithTopicProfilePipeline:
         assert lookup_stage["$lookup"]["foreignField"] == "user_id"
 
         # Verify unwind stage
-        unwind_stage = pipeline[2]
+        unwind_stage = pipeline[3]
         assert "$unwind" in unwind_stage
         assert unwind_stage["$unwind"]["path"] == "$aggregated_topic_attributes"
         assert unwind_stage["$unwind"]["preserveNullAndEmptyArrays"] is True
