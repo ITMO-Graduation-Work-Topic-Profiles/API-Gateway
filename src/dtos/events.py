@@ -7,6 +7,7 @@ from src.schemas import (
     EntityTopicEventSchema,
     KeywordTopicEventSchema,
     SentimentTopicEventSchema,
+    TopicTopicProfileEventSchema,
 )
 from src.utils.dates import utcnow
 
@@ -14,6 +15,7 @@ __all__ = [
     "ContentEventCreateDTO",
     "ContentEventBrokerDTO",
     "TopicAttributesEventBrokerDTO",
+    "TopicProfileEventBrokerDTO",
 ]
 
 
@@ -37,3 +39,11 @@ class TopicAttributesEventBrokerDTO(BaseModel):
     entities: list[EntityTopicEventSchema]
     sentiments: list[SentimentTopicEventSchema]
     timestamp: datetime
+
+
+class TopicProfileEventBrokerDTO(BaseModel):
+    topic_profile_event_uuid: uuid.UUID
+    user_content_event_uuid: uuid.UUID
+    user_id: str
+    topics: list[TopicTopicProfileEventSchema] = Field(default_factory=list)
+    timestamp: datetime = Field(default_factory=utcnow)

@@ -1,3 +1,5 @@
+from pprint import pprint
+
 from faststream.kafka import KafkaRouter
 from faststream.kafka.fastapi import Context
 from starlette.datastructures import State
@@ -6,6 +8,7 @@ from src.dtos import (
     AggregatedTopicAttributesDTO,
     ContentEventBrokerDTO,
     TopicAttributesEventBrokerDTO,
+    TopicProfileEventBrokerDTO,
 )
 from src.repositories import (
     insert_content_event_repository,
@@ -40,7 +43,7 @@ async def transmit_content_event_to_olap_handler(
     )
 
 
-@router.subscriber("topic-attributes")
+@router.subscriber("topicAttributes")
 async def transmit_topic_event_to_oltp_handler(
     incoming_topic_attributes_event: TopicAttributesEventBrokerDTO,
     state: State = Context("state"),
@@ -74,7 +77,7 @@ async def transmit_topic_event_to_oltp_handler(
     )
 
 
-@router.subscriber("topic-attributes", group_id="A")
+@router.subscriber("topicAttributes", group_id="A")
 async def transmit_topic_attributes_event_to_olap_handler(
     incoming_topic_attributes_event: TopicAttributesEventBrokerDTO,
     state: State = Context("state"),
@@ -109,3 +112,11 @@ async def transmit_topic_attributes_event_to_olap_handler(
         ts=incoming_topic_attributes_event.timestamp,
         get_connection=state.get_clickhouse_connection,
     )
+
+
+@router.subscriber("topicProfile")
+async def transmit_topic_profile_event_to_olap_handler(
+    incoming_topic_profile_event: TopicProfileEventBrokerDTO,
+    state: State = Context("state"),
+) -> None:
+    pprint(incoming_topic_profile_event.model_dump())
