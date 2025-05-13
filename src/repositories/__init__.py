@@ -7,6 +7,7 @@ from .events import (
     insert_content_event_repository,
     insert_topic_attributes_event_repository,
 )
+from .topic_profiles import upsert_topic_profile_repository
 from .users import (
     get_user_repository,
     get_user_with_topic_info_repository,
@@ -24,4 +25,5 @@ __all__ = [
     "get_aggregated_topic_attributes_repository",
     "upsert_aggregated_topic_attributes_repository",
     "get_content_events_repository",
+    "upsert_topic_profile_repository",
 ]

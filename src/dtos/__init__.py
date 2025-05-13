@@ -7,6 +7,7 @@ from .events import (
     UserContentEventDTO,
 )
 from .responses import MessageResponseDTO
+from .topic_profiles import TopicProfileDTO
 from .users import UserCreateDTO, UserGetDTO
 
 __all__ = [
@@ -19,4 +20,5 @@ __all__ = [
     "TopicAttributesEventBrokerDTO",
     "TopicProfileEventBrokerDTO",
     "UserContentEventDTO",
+    "TopicProfileDTO",
 ]

@@ -1,5 +1,3 @@
-from pprint import pprint
-
 from faststream.kafka import KafkaRouter
 from faststream.kafka.fastapi import Context
 from starlette.datastructures import State
@@ -8,6 +6,7 @@ from src.dtos import (
     AggregatedTopicAttributesDTO,
     ContentEventBrokerDTO,
     TopicAttributesEventBrokerDTO,
+    TopicProfileDTO,
     TopicProfileEventBrokerDTO,
 )
 from src.repositories import (
@@ -15,6 +14,7 @@ from src.repositories import (
     insert_content_event_repository,
     insert_topic_attributes_event_repository,
     upsert_aggregated_topic_attributes_repository,
+    upsert_topic_profile_repository,
 )
 from src.utils.aggregated_topic_attributes import (
     update_aggregated_topic_attributes_dto_based_on_topic_attributes_event_schema,
@@ -117,4 +117,10 @@ async def transmit_topic_profile_event_to_olap_handler(
     incoming_topic_profile_event: TopicProfileEventBrokerDTO,
     state: State = Context("state"),
 ) -> None:
-    pprint(incoming_topic_profile_event.model_dump())
+    await upsert_topic_profile_repository(
+        TopicProfileDTO(
+            user_id=incoming_topic_profile_event.user_id,
+            topics=incoming_topic_profile_event.topics,
+        ).model_dump(),
+        database=state.mongo_database,
+    )
