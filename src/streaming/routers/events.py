@@ -11,20 +11,18 @@ from src.dtos import (
     TopicProfileEventBrokerDTO,
 )
 from src.repositories import (
+    get_aggregated_topic_attributes_repository,
     insert_content_event_repository,
     insert_topic_attributes_event_repository,
-)
-
-__all__ = ["router"]
-
-from src.repositories.aggregated_topic_attributes import (
-    get_aggregated_topic_attributes_repository,
     upsert_aggregated_topic_attributes_repository,
 )
 from src.utils.aggregated_topic_attributes import (
     update_aggregated_topic_attributes_dto_based_on_topic_attributes_event_schema,
 )
 from src.utils.manipulations import split_attributes_from_items
+
+__all__ = ["router"]
+
 
 router = KafkaRouter(prefix="events-")
 

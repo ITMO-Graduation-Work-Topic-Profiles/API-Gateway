@@ -2,11 +2,14 @@ import typing as tp
 import uuid
 from datetime import datetime
 
+from asynch import DictCursor
+
 from src.utils.olap import GetClickhouseConnection
 
 __all__ = [
     "insert_content_event_repository",
     "insert_topic_attributes_event_repository",
+    "get_content_events_repository",
 ]
 
 
@@ -80,3 +83,24 @@ async def insert_topic_attributes_event_repository(
                     ),
                 ],
             )
+
+
+async def get_content_events_repository(
+    user_id: str,
+    *,
+    get_connection: GetClickhouseConnection,
+) -> list[tp.Any]:
+    async with get_connection() as connection:
+        async with connection.cursor(cursor=DictCursor) as cursor:
+            await cursor.execute(
+                """
+                SELECT *
+                FROM content_events
+                WHERE user_id = %(user_id)s
+                """,
+                {"user_id": user_id},
+            )
+
+            rows = await cursor.fetchall()
+
+            return list(rows)
