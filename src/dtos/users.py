@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 
 from src.utils.dates import utcnow
 
+from . import TopicProfileDTO
 from .aggregated_topic_attributes import AggregatedTopicAttributesDTO
 
 __all__ = [
@@ -22,6 +23,7 @@ class UserGetDTO(BaseModel):
     user_id: str
     username: str
     aggregated_topic_attributes: AggregatedTopicAttributesDTO | None = None
+    topic_profile: TopicProfileDTO | None = None
 
 
 class UserCreateDTO(BaseModel):

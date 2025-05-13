@@ -34,11 +34,30 @@ def build_get_users_with_topic_info_pipeline(
             }
         }
     )
+    pipeline.append(
+        {
+            "$lookup": {
+                "from": "topic_profiles",
+                "localField": "user_id",
+                "foreignField": "user_id",
+                "as": "topic_profile",
+            }
+        }
+    )
 
     pipeline.append(
         {
             "$unwind": {
                 "path": "$aggregated_topic_attributes",
+                "preserveNullAndEmptyArrays": True,
+            },
+        },
+    )
+
+    pipeline.append(
+        {
+            "$unwind": {
+                "path": "$topic_profile",
                 "preserveNullAndEmptyArrays": True,
             },
         },
