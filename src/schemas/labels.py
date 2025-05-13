@@ -4,5 +4,5 @@ __all__ = ["LabelTopicProfileEventSchema"]
 
 
 class LabelTopicProfileEventSchema(BaseModel):
-    text: str
-    score: float
+    name: str
+    weight: float

@@ -16,8 +16,12 @@ def content_event_create_dto_to_content_event_broker_dto_transformer(
 
 
 def get_content_events_repository_to_user_content_event_dto_transformer(
-    user_id: str, data: tp.Sequence[tp.Any]
+    user_id: str,
+    data: tp.Sequence[tp.Any],
 ) -> UserContentEventDTO:
     return UserContentEventDTO.model_validate(
-        {"user_id": user_id, "content_events": data}
+        {
+            "user_id": user_id,
+            "content_events": data,
+        }
     )

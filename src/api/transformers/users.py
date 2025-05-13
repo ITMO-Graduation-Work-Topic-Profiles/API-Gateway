@@ -12,6 +12,7 @@ __all__ = [
 def get_user_with_topic_info_repository_to_user_get_dto_transformer(
     item: tp.Any,
 ) -> UserGetDTO:
+    # TODO: Refactor
     return UserGetDTO(
         user_id=item["user_id"],
         username=item["username"],
@@ -31,7 +32,13 @@ def get_user_repository_to_user_get_dto_transformer(
     return UserGetDTO(
         user_id=item["user_id"],
         username=item["username"],
-        topic_attributes=None,
+        aggregated_topic_attributes=item["aggregated_topic_attributes"]
+        if "aggregated_topic_attributes" in item
+        and item["aggregated_topic_attributes"] is not None
+        else None,
+        topic_profile=item["topic_profile"]
+        if "topic_profile" in item and item["topic_profile"]
+        else None,
     )
 
 
