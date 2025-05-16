@@ -27,7 +27,7 @@ async def submit_content_event_for_processing_endpoint(
 ) -> tp.Any:
     await request.state.broker.publish(
         content_event_create_dto_to_content_event_broker_dto_transformer(body),
-        "events-content",
+        "content",
     )
     return MessageResponseDTO(message="Content event has been queued for creation")
 

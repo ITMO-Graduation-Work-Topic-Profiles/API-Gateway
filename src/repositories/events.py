@@ -2,7 +2,6 @@ import typing as tp
 import uuid
 from datetime import datetime
 
-
 from src.utils.olap import GetClickhouseConnection
 
 __all__ = [

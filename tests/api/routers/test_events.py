@@ -62,13 +62,13 @@ class TestCreateContentEventEndpoint:
         )
 
         mock_broker.publish.assert_called_once()
-        args, kwargs = mock_broker.publish.call_args
+        args, _ = mock_broker.publish.call_args
         published_dto, topic = args
 
         assert isinstance(published_dto, ContentEventBrokerDTO)
         assert published_dto.user_id == content_event_create_dto.user_id
         assert published_dto.content == content_event_create_dto.content
-        assert topic == "events-content"
+        assert topic == "content"
 
     def test_create_content_event_endpoint_validation_error(
         self, client: TestClient, app_with_broker: FastAPI, mock_broker: AsyncMock

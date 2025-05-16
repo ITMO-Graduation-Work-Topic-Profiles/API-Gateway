@@ -132,7 +132,7 @@ async def submit_topic_profile_for_processing_endpoint(
     )
     await request.state.broker.publish(
         user_content_event.model_dump(),
-        "events-userContent",
+        "userContent",
     )
 
     return MessageResponseDTO(message="Topic profile has been queued for creation")
