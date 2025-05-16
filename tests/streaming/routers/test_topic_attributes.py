@@ -4,97 +4,29 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from starlette.datastructures import State
 
-from src.dtos import (
-    AggregatedTopicAttributesDTO,
-    ContentEventBrokerDTO,
-    TopicAttributesEventBrokerDTO,
-)
+from src.dtos import AggregatedTopicAttributesDTO, TopicAttributesEventBrokerDTO
 from src.schemas import (
     EntityTopicEventSchema,
     KeywordTopicEventSchema,
     SentimentTopicEventSchema,
 )
-from src.streaming.routers.events import (
-    transmit_content_event_to_olap_handler,
+from src.streaming.routers.topic_attributes import (
     transmit_topic_attributes_event_to_olap_handler,
     transmit_topic_event_to_oltp_handler,
 )
 from src.utils.dates import utcnow
 
 
-class TestTransmitContentEventToOlapHandler:
-    @pytest.mark.asyncio
-    @patch("src.streaming.routers.events.insert_content_event_repository")
-    async def test_transmit_content_event_to_olap_handler_success(
-        self, mock_insert_content_event: AsyncMock
-    ) -> None:
-        # Arrange
-        content_event_uuid = uuid.uuid4()
-        user_id = "test_user_id"
-        content = "Test content"
-        timestamp = utcnow()
-
-        content_event = ContentEventBrokerDTO(
-            content_event_uuid=content_event_uuid,
-            user_id=user_id,
-            content=content,
-            timestamp=timestamp,
-        )
-
-        mock_get_clickhouse_connection = AsyncMock()
-        state = State()
-        state.get_clickhouse_connection = mock_get_clickhouse_connection
-
-        # Act
-        await transmit_content_event_to_olap_handler(
-            content_event,
-            state=state,
-        )
-
-        # Assert
-        mock_insert_content_event.assert_called_once_with(
-            content_event_uuid=content_event_uuid,
-            user_id=user_id,
-            content=content,
-            ts=timestamp,
-            get_connection=mock_get_clickhouse_connection,
-        )
-
-    @pytest.mark.asyncio
-    @patch("src.streaming.routers.events.insert_content_event_repository")
-    async def test_transmit_content_event_to_olap_handler_error(
-        self, mock_insert_content_event: AsyncMock
-    ) -> None:
-        # Arrange
-        content_event = ContentEventBrokerDTO(
-            content_event_uuid=uuid.uuid4(),
-            user_id="test_user_id",
-            content="Test content",
-            timestamp=utcnow(),
-        )
-
-        mock_get_clickhouse_connection = AsyncMock()
-        state = State()
-        state.get_clickhouse_connection = mock_get_clickhouse_connection
-
-        mock_insert_content_event.side_effect = Exception("Database error")
-
-        # Act & Assert
-        with pytest.raises(Exception, match="Database error"):
-            await transmit_content_event_to_olap_handler(
-                content_event,
-                state=state,
-            )
-
-        mock_insert_content_event.assert_called_once()
-
-
 class TestTransmitTopicEventToOltpHandler:
     @pytest.mark.asyncio
-    @patch("src.streaming.routers.events.get_aggregated_topic_attributes_repository")
-    @patch("src.streaming.routers.events.upsert_aggregated_topic_attributes_repository")
     @patch(
-        "src.streaming.routers.events.update_aggregated_topic_attributes_dto_based_on_topic_attributes_event_schema"
+        "src.streaming.routers.topic_attributes.get_aggregated_topic_attributes_repository"
+    )
+    @patch(
+        "src.streaming.routers.topic_attributes.upsert_aggregated_topic_attributes_repository"
+    )
+    @patch(
+        "src.streaming.routers.topic_attributes.update_aggregated_topic_attributes_dto_based_on_topic_attributes_event_schema"
     )
     async def test_transmit_topic_event_to_oltp_handler_existing_profile(
         self,
@@ -194,10 +126,14 @@ class TestTransmitTopicEventToOltpHandler:
         )
 
     @pytest.mark.asyncio
-    @patch("src.streaming.routers.events.get_aggregated_topic_attributes_repository")
-    @patch("src.streaming.routers.events.upsert_aggregated_topic_attributes_repository")
     @patch(
-        "src.streaming.routers.events.update_aggregated_topic_attributes_dto_based_on_topic_attributes_event_schema"
+        "src.streaming.routers.topic_attributes.get_aggregated_topic_attributes_repository"
+    )
+    @patch(
+        "src.streaming.routers.topic_attributes.upsert_aggregated_topic_attributes_repository"
+    )
+    @patch(
+        "src.streaming.routers.topic_attributes.update_aggregated_topic_attributes_dto_based_on_topic_attributes_event_schema"
     )
     async def test_transmit_topic_event_to_oltp_handler_new_profile(
         self,
@@ -289,8 +225,10 @@ class TestTransmitTopicEventToOltpHandler:
 
 class TestTransmitTopicEventToOlapHandler:
     @pytest.mark.asyncio
-    @patch("src.streaming.routers.events.insert_topic_attributes_event_repository")
-    @patch("src.streaming.routers.events.split_attributes_from_items")
+    @patch(
+        "src.streaming.routers.topic_attributes.insert_topic_attributes_event_repository"
+    )
+    @patch("src.streaming.routers.topic_attributes.split_attributes_from_items")
     async def test_transmit_topic_event_to_olap_handler_success(
         self,
         mock_split_attributes: MagicMock,
@@ -352,8 +290,10 @@ class TestTransmitTopicEventToOlapHandler:
         )
 
     @pytest.mark.asyncio
-    @patch("src.streaming.routers.events.insert_topic_attributes_event_repository")
-    @patch("src.streaming.routers.events.split_attributes_from_items")
+    @patch(
+        "src.streaming.routers.topic_attributes.insert_topic_attributes_event_repository"
+    )
+    @patch("src.streaming.routers.topic_attributes.split_attributes_from_items")
     async def test_transmit_topic_event_to_olap_handler_error(
         self,
         mock_split_attributes: MagicMock,
