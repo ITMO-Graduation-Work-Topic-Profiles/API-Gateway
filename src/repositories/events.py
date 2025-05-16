@@ -2,7 +2,6 @@ import typing as tp
 import uuid
 from datetime import datetime
 
-from asynch import DictCursor
 
 from src.utils.olap import GetClickhouseConnection
 
@@ -91,7 +90,7 @@ async def get_content_events_repository(
     get_connection: GetClickhouseConnection,
 ) -> list[tp.Any]:
     async with get_connection() as connection:
-        async with connection.cursor(cursor=DictCursor) as cursor:
+        async with connection.cursor() as cursor:
             await cursor.execute(
                 """
                 SELECT *
